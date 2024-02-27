@@ -5,11 +5,10 @@ import MessageContainer from "../sidebar/messageContainer/messageContainer.jsx";
 import axios from "axios";
 import { io } from "socket.io-client";
 import EmojiPicker from 'emoji-picker-react';
-import { SmilePlus, SendHorizonal } from "lucide-react";
+import { SmilePlus, SendHorizonal, ArrowLeft } from "lucide-react";
 import ErrorMessage from "../utils/ErrorMessage.jsx";
 import { motion } from "framer-motion";
-import Loading from './Loading.jsx'
-
+import Loading from './Loading.jsx';
 
 const socket = await io.connect(process.env.REACT_APP_BACKEND);
 
@@ -22,23 +21,24 @@ function Chat() {
   const [sendMessage, setSendMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [loading, setLoading] = useState(true);
+
   // Function to handle friend click
   const handleFriendClick = async (friendId) => {
     try {
-      setLoading(true)
+      setLoading(true); // Set loading to true before fetching messages
       if (!user) {
         console.error("User is null");
         return;
       }
   
-      const response = await axios.post(process.env.REACT_APP_BACKEND+"/api/mes/allmessages", {
+      const response = await axios.post(process.env.REACT_APP_BACKEND + "/api/mes/allmessages", {
         userId: user._id,
         friendId,
       });
   
       setSelectedFriend(friendId);
       setMessages(response.data.messages);
-      setLoading(false);
+      setLoading(false); // Set loading to false after fetching messages
     } catch (error) {
       console.error("Error fetching messages:", error);
     }
@@ -63,10 +63,6 @@ function Chat() {
     }
   };
 
-  useEffect(() => {
-    console.log(loading)
-  }, [loading])
-
   // Join socket on user ID change
   useEffect(() => {
     const joinSocket = async () => {
@@ -88,63 +84,71 @@ function Chat() {
     };
   }, [messages]);
 
-  if(!user){
-    return <ErrorMessage />
+  if (!user) {
+    return <ErrorMessage />;
   }
 
-
-  return  (
+  return (
     <motion.main
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
-      className="flex h-screen py-10 "
+      className="flex h-screen py-10 max-sm:py-0"
     >
-      <section className="flex w-full gap-6 px-10">
-        <SideBar user={user} onFriendClick={handleFriendClick} socket={socket}/>
-        <section className="flex flex-col w-full bg-white rounded-xl">
+      <section className="flex w-full gap-6 px-10 max-sm:px-0">
+        <SideBar selectedFriend={selectedFriend} setSelectedFriend={setSelectedFriend} user={user} onFriendClick={handleFriendClick} socket={socket} />
+        <section className={`flex relative flex-col w-full max-sm:bg-transparent bg-white max-sm:fixed max-sm:overflow-scroll max-sm:h-screen max-sm:bg-white max-sm:w-full rounded-xl ${selectedFriend === "" ? "max-sm:hidden" : "max-sm:block"}`}>
+          <div className="absolute hidden left-2 top-2 max-sm:block max-sm:bg-transparent">
+            {selectedFriend !== "" && (
+              <ArrowLeft onClick={() => setSelectedFriend("")} size={30} />
+            )}
+          </div>
           <div className="flex-grow h-full p-4">
             {selectedFriend && (
               loading ? (
                 <Loading />
               ) : (
-                  <div className="h-full flex flex-col justify-between">
-                    <div className="overflow-y-auto"><MessageContainer user={user} messages={messages} /></div>
-                    <form className="flex items-center mt-4" onSubmit={handleSend}>
-                      <div className="mr-4 px-2 py-2 relative">
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.3 }}
-                          className={`absolute bottom-10 mt-8 z-10 ${showEmojiPicker ? '' : 'hidden'}`}
-                        >
-                          <EmojiPicker onEmojiClick={handleEmojiClick} />
-                        </motion.div>
-                        <motion.div
-                          whileHover={{ scale: 1.2 }} // Increase scale on hover
-                          className="cursor-pointer"
-                          onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                        >
-                          <SmilePlus size={30} className=" text-bg-primary" />
-                        </motion.div>
-                      </div>
-                      <input
-                        type="text"
-                        required={true}
-                        minLength={1}
-                        name="sendMessage"
-                        value={sendMessage}
-                        onChange={(e) => setSendMessage(e.target.value)}
-                        className="flex-grow border border-gray-300 rounded-md p-2 focus:outline-none"
-                      />
-                      <button type="submit" className="bg-bg-primary text-white flex items-center justify-center px-2 rounded-full py-2 ml-4 hover:scale-125 transition"><SendHorizonal/></button>
-                    </form>
+                <div className="h-full flex flex-col justify-between">
+                  <div className="overflow-y-auto">
+                    <MessageContainer user={user} messages={messages} />
                   </div>
+                  <form className="flex items-center mt-4" onSubmit={handleSend}>
+                    <div className="mr-4 px-2 py-2 relative">
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.3 }}
+                        className={`absolute bottom-10 mt-8 z-10 ${showEmojiPicker ? '' : 'hidden'}`}
+                      >
+                        <EmojiPicker onEmojiClick={handleEmojiClick} />
+                      </motion.div>
+                      <motion.div
+                        whileHover={{ scale: 1.2 }}
+                        className="cursor-pointer"
+                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                      >
+                        <SmilePlus size={30} className="text-bg-primary" />
+                      </motion.div>
+                    </div>
+                    <input
+                      type="text"
+                      required={true}
+                      minLength={1}
+                      name="sendMessage"
+                      value={sendMessage}
+                      onChange={(e) => setSendMessage(e.target.value)}
+                      className="flex-grow border border-gray-300 rounded-md p-2 focus:outline-none"
+                    />
+                    <button type="submit" className="bg-bg-primary text-white flex items-center justify-center px-2 rounded-full py-2 ml-4 hover:scale-125 transition">
+                      <SendHorizonal />
+                    </button>
+                  </form>
+                </div>
               )
             )}
             {!selectedFriend && (
-              <div className="text-center mt-4">Start a Conversation</div>
+              <div className="text-center mt-4 max-sm:hidden">Start a Conversation</div>
             )}
           </div>
         </section>

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import FriendItem from "../FriedItem/FriendItem.jsx";
 import toast from 'react-hot-toast';
 
-const FriendList = ({ memoFetchFriends, friends, onFriendClick, socket, user }) => {
+const FriendList = ({ memoFetchFriends, selectedFriend, friends, onFriendClick, socket, user, setSelectedFriend }) => {
   socket.on('deleteFriend', () => {
     toast.success("Friend deleted successfully");
     memoFetchFriends();
@@ -21,6 +21,8 @@ const FriendList = ({ memoFetchFriends, friends, onFriendClick, socket, user }) 
             transition={{ duration: 0.5 }}
           >
             <FriendItem
+            selectedFriend={selectedFriend}
+            setSelectedFriend={setSelectedFriend}
               socket={socket} 
               memoFetchFriends={memoFetchFriends} 
               friend={friend} 

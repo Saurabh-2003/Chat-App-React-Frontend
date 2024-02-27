@@ -3,7 +3,7 @@ import { Settings, User, CircleUser, LogOut } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { motion } from "framer-motion";
 import { Facebook, Instagram, Twitter, Mail, Phone } from 'lucide-react';
-
+import RequestSection from "../requestSection/requestSection";
 
 const UserInfoCard = ({ user, onClose, onUpdate }) => {
   const [editedUser, setEditedUser] = useState({ ...user });
@@ -45,12 +45,12 @@ const UserInfoCard = ({ user, onClose, onUpdate }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.05 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5 }}
-      className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50 bg-white backdrop-blur-sm bg-opacity-50"
-    >
-      <div className="bg-white max-sm:h-full max-sm:w-full h-[500px] w-[500px] rounded-lg p-8 max-w-md shadow-lg">
+    initial={{ opacity: 0, scale: 0.05 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ duration: 0.5 }}
+    className="fixed top-0 left-0 w-full h-full max-sm:w-screen flex justify-center items-center z-50 bg-white backdrop-blur-sm bg-opacity-50"
+  >
+      <div className="bg-white max-sm:h-full  max-sm:rounded-none max-sm:w-full  h-[500px] w-[500px] rounded-lg p-8 shadow-lg">
         <span className="absolute top-4 hover:bg-red-500 px-4  rounded-lg hover:text-white py-1 hover right-2 text-gray-700 cursor-pointer" onClick={onClose}>
          Close
         </span>
@@ -107,7 +107,7 @@ const UserInfoCard = ({ user, onClose, onUpdate }) => {
 
 
 
-const Setting = ({ user }) => {
+const Setting = ({ user, socket, memoFetchFriends }) => {
   const [isSettingsMenuVisible, setSettingsMenuVisible] = useState(false);
   const [isUserInfoVisible, setUserInfoVisible] = useState(false);
   const navigate = useNavigate();
@@ -116,43 +116,38 @@ const Setting = ({ user }) => {
     setSettingsMenuVisible(prevState => !prevState);
   };
 
-  const handleUserInfoClick = () => {
+  const handleUserInfoClick = (event) => {
+    event.stopPropagation();
     setUserInfoVisible(true);
     setSettingsMenuVisible(false);
   };
-
-  const handleLogout = () => {
+  
+  const handleLogout = (event) => {
+    event.stopPropagation();
     navigate('/login');
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (!event.target.closest(".settings-menu")) {
-        setSettingsMenuVisible(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
   return (
-    <div className="flex w-full   px-4 shadow-md border py-2 rounded-2xl items-center justify-between ">
+    <div className="flex w-full px-4 shadow-md border py-2 rounded-2xl items-center justify-between">
       <div className="text-slate-700 text-xl capitalize">{(user.name.split(' '))[0]}</div>
-      <div className="cursor-pointer text-slate-800 " onClick={handleSettingsIconClick}>
-        <Settings size={30} className="inline-block hover:text-bg-primary" />
+      <div className="flex gap-x-2">
+        <RequestSection user={user} socket={socket} memoFetchFriends={memoFetchFriends} />
+        <div className="cursor-pointer text-slate-800" onClick={handleSettingsIconClick}>
+          <Settings size={30} className="inline-block hover:text-bg-primary" />
+        </div>
       </div>
       {isSettingsMenuVisible && (
-        <div className="settings-menu translate-x-56 bg-white shadow-md absolute w-40 rounded-md overflow-hidden flex flex-col gap-3">
+        <div className="fixed top-14  bg-white shadow-md w-40 rounded-md overflow-hidden flex flex-col gap-3 z-10">
           <div 
-          className="cursor-pointer py-2 px-2 flex w-full text-blue-500 hover:text-slate-100 hover:bg-blue-500" 
-          onClick={handleUserInfoClick}>
+            className="cursor-pointer py-2 px-2 flex w-full text-blue-500 hover:text-slate-100 hover:bg-blue-500" 
+            onClick={(event) => handleUserInfoClick(event)}
+          >
             <CircleUser className="inline-block mr-1" />User Info
           </div>
-          <div className="text-red-500 px-2 py-2 hover:bg-red-500 hover:text-slate-100 cursor-pointer" onClick={handleLogout}>
+          <div 
+            className="text-red-500 px-2 py-2 hover:bg-red-500 hover:text-slate-100 cursor-pointer" 
+            onClick={(event) => handleLogout(event)}
+          >
             <LogOut className="inline-block mr-1" />Logout
           </div>
         </div>

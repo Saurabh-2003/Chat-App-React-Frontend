@@ -8,4 +8,16 @@
     left: 0;
     right: 0;
   }
-    
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(18, 52, 188, 0.583);
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: rgba(0, 0, 0, 0.108); 
+    border-radius: 10px;
+  }

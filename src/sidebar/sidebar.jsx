@@ -9,7 +9,7 @@ import RequestSection from "./requestSection/requestSection.jsx";
 import toast from "react-hot-toast"
 import Loading from "./Loading.jsx";
 
-function Sidebar({ user, onFriendClick, socket }) {
+function Sidebar({ user, onFriendClick, socket, setSelectedFriend, selectedFriend }) {
   const [friends, setFriends] = useState([]);
   const [addFriend, setAddFriend] = useState("");
   const [loading, setLoading] = useState(true);
@@ -63,17 +63,16 @@ function Sidebar({ user, onFriendClick, socket }) {
       initial={{ x: -100, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="flex flex-col h-full bg-white rounded-2xl text-white w-72 py-10 px-4"
+      className="flex flex-col max-sm:w-full max-sm:rounded-none h-full bg-white rounded-2xl text-white w-72 py-10 px-4"
     >
       <div className="flex items-center justify-between mb-2">
-        <Settings user={user} />
+        <Settings user={user} socket={socket} memoFetchFriends={memoFetchFriends}/>
       </div>
       <div className="flex flex-col flex-grow">
         {
           loading ? <Loading />:
-          <FriendList  memoFetchFriends={memoFetchFriends} socket={socket} friends={friends} onFriendClick={onFriendClick} user={user} />
+          <FriendList selectedFriend={selectedFriend}  setSelectedFriend={setSelectedFriend}  memoFetchFriends={memoFetchFriends} socket={socket} friends={friends} onFriendClick={onFriendClick} user={user} />
         }
-        <RequestSection user={user} socket={socket} memoFetchFriends={memoFetchFriends} />
       </div>
       <div className="mt-6">
         <AddFriendForm
