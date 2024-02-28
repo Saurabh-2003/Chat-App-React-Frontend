@@ -3,34 +3,16 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import FriendList from "./FriendList/FriendList";
-import AddFriendForm from "./AddFriend/AddFriendForm";
 import Settings from "./setting/setting.jsx";
-import RequestSection from "./requestSection/requestSection.jsx";
-import toast from "react-hot-toast"
 import Loading from "./Loading.jsx";
+import RequestSection from "./requestSection/requestSection.jsx";
+
 
 function Sidebar({ user, onFriendClick, socket, setSelectedFriend, selectedFriend }) {
   const [friends, setFriends] = useState([]);
-  const [addFriend, setAddFriend] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const handleAddFriend = async (e) => {
-    e.preventDefault();
-    const toastId = toast.loading("Sending Request")
-    try {
-      const response = await axios.post(process.env.REACT_APP_BACKEND + "/api/new/sendrequest", {
-        userId: user._id,
-        email: addFriend,
-      });
-      toast.success("Request Sent Successfully!!");
-      toast.dismiss(toastId);
-      socket.emit("sendRequest", { user: user._id, email: addFriend });
-      setAddFriend("");
-    } catch (error) {
-      toast.error("User does not exist or Invalid Email\n Please enter a valid email")
-      toast.dismiss(toastId);
-    }
-  };
+
 
   const fetchFriends = async () => {
     try {
@@ -66,20 +48,36 @@ function Sidebar({ user, onFriendClick, socket, setSelectedFriend, selectedFrien
       className="flex flex-col max-sm:w-full max-sm:rounded-none h-full bg-white rounded-2xl text-white w-72 py-10 px-4"
     >
       <div className="flex items-center justify-between mb-2">
-        <Settings user={user} socket={socket} memoFetchFriends={memoFetchFriends}/>
-      </div>
-      <div className="flex flex-col flex-grow">
-        {
-          loading ? <Loading />:
-          <FriendList selectedFriend={selectedFriend}  setSelectedFriend={setSelectedFriend}  memoFetchFriends={memoFetchFriends} socket={socket} friends={friends} onFriendClick={onFriendClick} user={user} />
-        }
-      </div>
-      <div className="mt-6">
-        <AddFriendForm
-          addFriend={addFriend}
-          onAddFriendChange={(e) => setAddFriend(e.target.value)}
-          onAddFriendSubmit={handleAddFriend}
+        <Settings 
+          user={user} 
+          socket={socket} 
+          memoFetchFriends={memoFetchFriends}
+          
         />
+      </div>
+      <div className="flex flex-col overflow-y-auto">
+      {
+        loading ? <Loading /> :
+        (
+          friends.length === 0 ? 
+          <div className="text-black w-full mt-8">
+              <p className="text-center">No Friends</p>
+              <div className="w-full hover:bg-bg-primary/80 mx-auto mt-4 flex flex-shrink justify-center gap-4  h-10 bg-bg-primary">
+                  <RequestSection text={"Invite Friends"} user={user} socket={socket} memoFetchFriends={memoFetchFriends}/>
+              </div>
+          </div> :
+          <FriendList 
+            selectedFriend={selectedFriend}  
+            setSelectedFriend={setSelectedFriend}  
+            memoFetchFriends={memoFetchFriends} 
+            socket={socket} 
+            friends={friends} 
+            onFriendClick={onFriendClick} 
+            user={user}
+          />
+        )
+      }
+
       </div>
     </motion.div>
   );

@@ -34,7 +34,7 @@ function MessageContainer({ user, messages }) {
   }, {});
 
   return (
-    <div className="h-full py-2 w-full px-10 overflow-y-auto" ref={messagesRef}>
+    <div className="h-full py-2 max-sm:px-0 max-sm:py-0 w-full px-10 overflow-y-auto" ref={messagesRef}>
       {Object.entries(groupedMessages).map(([formattedDate, messagesForDate]) => (
         <div key={formattedDate}>
           {/* Show "Yesterday" or "Today" above the respective messages */}

@@ -10,7 +10,7 @@ const FriendList = ({ memoFetchFriends, selectedFriend, friends, onFriendClick, 
   });
 
   return (
-    <ul className=" h-full overflow-auto">
+    <ul className=" h-full">
       <AnimatePresence>
         {friends.map((friend, index) => (
           <motion.li
