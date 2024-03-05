@@ -6,9 +6,11 @@ import FriendList from "./FriendList/FriendList";
 import Settings from "./setting/setting.jsx";
 import Loading from "./Loading.jsx";
 import RequestSection from "./requestSection/requestSection.jsx";
+import CreateGroup from "./CreateGroup/CreateGroup.jsx";
+import AddFriendForm from "./AddFriend/AddFriendForm.jsx";
 
 
-function Sidebar({ user, onFriendClick, socket, setSelectedFriend, selectedFriend }) {
+function Sidebar({ user, onFriendClick, socket, setSelectedFriend, selectedFriend , setUser}) {
   const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -45,14 +47,14 @@ function Sidebar({ user, onFriendClick, socket, setSelectedFriend, selectedFrien
       initial={{ x: -100, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="flex flex-col max-sm:w-full max-sm:rounded-none h-full bg-white rounded-2xl text-white w-72 py-10 px-4"
+      className="flex flex-col max-sm:w-full max-sm:rounded-none h-full bg-white rounded-2xl text-white min-w-96 py-10 px-4"
     >
       <div className="flex items-center justify-between mb-2">
         <Settings 
           user={user} 
           socket={socket} 
           memoFetchFriends={memoFetchFriends}
-          
+          setUser={setUser}
         />
       </div>
       <div className="flex flex-col overflow-y-auto">
@@ -78,6 +80,11 @@ function Sidebar({ user, onFriendClick, socket, setSelectedFriend, selectedFrien
         )
       }
 
+          
+      </div>
+      <div className=" mt-auto bg-gray-200 py-2 px-2 rounded-full flex justify-between">
+        <CreateGroup user={user} socket={socket}/>
+        <AddFriendForm user={user} socket={socket}/>
       </div>
     </motion.div>
   );

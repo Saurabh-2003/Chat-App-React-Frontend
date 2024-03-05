@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 
+
 function MessageContainer({ user, messages }) {
   const messagesRef = useRef(null);
 
@@ -34,7 +35,7 @@ function MessageContainer({ user, messages }) {
   }, {});
 
   return (
-    <div className="h-full py-2 max-sm:px-0 max-sm:py-0 w-full px-10 overflow-y-auto" ref={messagesRef}>
+    <div className="h-full py-2 max-sm:px-6 relative max-sm:py-0 w-full px-10 overflow-y-auto" ref={messagesRef}>
       {Object.entries(groupedMessages).map(([formattedDate, messagesForDate]) => (
         <div key={formattedDate}>
           {/* Show "Yesterday" or "Today" above the respective messages */}
@@ -49,12 +50,22 @@ function MessageContainer({ user, messages }) {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3 }}
             >
-              <div className={`max-w-80 overflow-hidden px-6 rounded-full ${m.from === user._id ? "bg-gray-200 rounded-tl-none text-slate-900 self-end w-fit" : "bg-bg-primary rounded-br-none text-white self-start w-fit"}`}>
+              <div className={`flex gap-2 items-center ${m.from === user._id ? "self-end flex-row-reverse" : "self-start"}`}>
+                {m.fromImage.image ? (
+                  <img src={m.fromImage.image} className="h-8 w-8 rounded-full mr-2" alt="From" />
+                ) : (
+                  <img src="/placeholder.jpg" className="h-8 w-8 rounded-full mr-2" alt="Placeholder" />
+                )}
+                <span className="text-sm capitalize text-slate-700">{(m.fromName.name.split(' '))[0]}</span>
+              </div>
+
+              <div className={`max-w-80 overflow-hidden px-6 rounded-full ${m.from === user._id ? "bg-gray-200 mr-6 rounded-tl-none text-slate-900 self-end w-fit" : "bg-bg-primary ml-6 rounded-br-none text-white self-start w-fit"}`}>
                 <div className="whitespace-pre-wrap" style={{ wordWrap: 'break-word' }}>{m.message}</div>
                 <div className="text-xs text-right">{formatMessageTime(m.timestamp)}</div>
               </div>
             </motion.div>
           ))}
+
         </div>
       ))}
     </div>

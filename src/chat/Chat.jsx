@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import SideBar from "../sidebar/sidebar";
 import MessageContainer from "../sidebar/messageContainer/messageContainer.jsx";
 import axios from "axios";
@@ -9,18 +9,19 @@ import { SmilePlus, SendHorizonal, ArrowLeft } from "lucide-react";
 import ErrorMessage from "../utils/ErrorMessage.jsx";
 import { motion } from "framer-motion";
 import Loading from './Loading.jsx';
+import UserLoading from "./UserLoading.jsx";
 
-const socket = await io.connect(process.env.REACT_APP_BACKEND);
+const socket = io.connect(process.env.REACT_APP_BACKEND);
 
 function Chat() {
-  const location = useLocation();
-  const { state } = location;
-  const { user } = state || {};
+  const [useLoading, setUserLaoading] = useState(true);
+  const [user, setUser] = useState(null);
   const [selectedFriend, setSelectedFriend] = useState("");
   const [messages, setMessages] = useState([]);
   const [sendMessage, setSendMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [loading, setLoading] = useState(false); // Initialize loading state
+  const { id } = useParams();
 
   // Function to handle friend click
   const handleFriendClick = async (friendId) => {
@@ -31,7 +32,7 @@ function Chat() {
         return;
       }
   
-      const response = await axios.post(process.env.REACT_APP_BACKEND + "/api/mes/allmessages", {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND}/api/mes/allmessages`, {
         userId: user._id,
         friendId,
       });
@@ -63,6 +64,21 @@ function Chat() {
     }
   };
 
+  // Fetch user details when component mounts
+  useEffect(() => {
+    const getUserDetails = async () => {
+      try {
+        const { data } = await axios.get(`${process.env.REACT_APP_BACKEND}/api/new/getmyinfo/${id}`);
+        setUser(data.info);
+        setUserLaoading(false);
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+      }
+    };
+
+    getUserDetails();
+  }, [id]);
+
   // Join socket on user ID change
   useEffect(() => {
     const joinSocket = async () => {
@@ -70,7 +86,7 @@ function Chat() {
         // Wait for the socket to connect before emitting events
         await new Promise(resolve => socket.once('connect', resolve));
       }
-      socket.emit('join', user._id);
+      socket.emit('join', user?._id);
     };
   
     if (user && user._id) {
@@ -98,30 +114,11 @@ function Chat() {
     };
   }, [messages]);
 
-  //Delete a friend 
-  const deleteFriend = async (event) => {
-    event.stopPropagation(); // Stop event propagation
-    try {
-      await axios.delete(process.env.REACT_APP_BACKEND+"/api/new/removefriend", {
-        data: {
-          userId: user._id,
-          friendId: selectedFriend,
-        },
-      });
-      socket.emit('friendDelete', {
-        userId : user._id,
-        friendId: selectedFriend
-      });
-  
-      setSelectedFriend("");
-    } catch (error) {
-      console.error("Error deleting friend:", error);
-    } finally {
-      // setConfirmationVisible(false);
-    }
-  };
 
-  //Return an error if the user is not found :
+  if(useLoading){
+    return <UserLoading />
+  }
+  // Return an error if the user is not found
   if (!user) {
     return <ErrorMessage />;
   }
@@ -141,6 +138,7 @@ function Chat() {
           user={user} 
           onFriendClick={handleFriendClick} 
           socket={socket} 
+          setUser={setUser}
         />
         <section className={`flex relative flex-col w-full max-sm:bg-transparent bg-white max-sm:fixed max-sm:overflow-scroll max-sm:h-screen max-sm:bg-white max-sm:w-full rounded-xl ${selectedFriend === "" ? "max-sm:hidden" : "max-sm:block"}`}>
           <div className="absolute  left-2 top-2  max-sm:bg-transparent">
@@ -148,7 +146,7 @@ function Chat() {
               <ArrowLeft onClick={() => setSelectedFriend("")} size={30} />
             )}
           </div>
-          <div className="flex-grow h-full max-sm:px-0 p-4">
+          <div className="flex-grow h-full max-sm:px-0 px-4 pb-4 pt-10">
             {selectedFriend && (
               loading ? (
                 <Loading />

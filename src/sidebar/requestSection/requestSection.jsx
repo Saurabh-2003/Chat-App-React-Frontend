@@ -15,7 +15,6 @@ const Requests = ({ setOpenRequest, setNewRequest, user, socket, memoFetchFriend
 
   const [requestsRecieved, setRequestsRecieved] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [addFriend, setAddFriend] = useState("");
 
   const onAcceptClick = async (request) => {
     try {
@@ -30,23 +29,7 @@ const Requests = ({ setOpenRequest, setNewRequest, user, socket, memoFetchFriend
     }
   };
 
-  const handleAddFriend = async (e) => {
-    e.preventDefault();
-    const toastId = toast.loading("Sending Request")
-    try {
-      const response = await axios.post(process.env.REACT_APP_BACKEND + "/api/new/sendrequest", {
-        userId: user._id,
-        email: addFriend,
-      });
-      toast.success("Request Sent Successfully!!");
-      toast.dismiss(toastId);
-      socket.emit("sendRequest", { user: user._id, email: addFriend });
-      setAddFriend("");
-    } catch (error) {
-      toast.error("User does not exist or Invalid Email\n Please enter a valid email")
-      toast.dismiss(toastId);
-    }
-  };
+
 
 
   const onDeclineClick = async (request) => {
@@ -106,13 +89,6 @@ const Requests = ({ setOpenRequest, setNewRequest, user, socket, memoFetchFriend
         <span className="absolute max-sm:top-0 top-4 hover:bg-red-500 px-4  rounded-lg hover:text-white py-1 hover max-sm:right-0 right-2 text-gray-700 cursor-pointer" onClick={closeCard}>
           Close
         </span>
-        <div className='my-4'>
-          <AddFriendForm
-            addFriend={addFriend}
-            onAddFriendChange={(e) => setAddFriend(e.target.value)}
-            onAddFriendSubmit={handleAddFriend}
-          />
-        </div>
         <div className=" text-slate-500">
           <div className='text-center text-lg mb-4 bg-stone-100 shadow-md'> Requests</div>
           {

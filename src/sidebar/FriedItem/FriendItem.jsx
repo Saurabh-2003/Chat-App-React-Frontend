@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Trash } from "lucide-react";
 import axios from "axios";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast"
 
 const FriendItem = ({ socket, memoFetchFriends, setSelectedFriend, friend, selectedFriend, onFriendClick, user }) => {
   const [isConfirmationVisible, setConfirmationVisible] = useState(false);
@@ -22,18 +23,29 @@ const FriendItem = ({ socket, memoFetchFriends, setSelectedFriend, friend, selec
 
   const deleteFriend = async (event) => {
     event.stopPropagation(); // Stop event propagation
+    console.log(friend.admin, user._id)
     try {
-      await axios.delete(process.env.REACT_APP_BACKEND + "/api/new/removefriend", {
-        data: {
-          userId: user._id,
-          friendId: friend._id,
-        },
-      });
+      if (friend.isGroup && friend.admin === user._id) {
+        const res = await axios.delete(`${process.env.REACT_APP_BACKEND}/api/new/delete-group`, {
+          data: { id: friend._id } 
+        })
+        if(res.data.success){
+          toast.success(res.data.message)
+        }
+      } else {
+        // Proceed with deleting the friend as usual
+        await axios.delete(process.env.REACT_APP_BACKEND + "/api/new/removefriend", {
+          data: {
+            userId: user._id,
+            friendId: friend._id,
+          },
+        });
+      }
       socket.emit("friendDelete", {
         userId: user._id,
         friendId: friend._id,
       });
-
+  
       if (selectedFriend === friend._id) {
         setSelectedFriend("");
       }
@@ -44,6 +56,7 @@ const FriendItem = ({ socket, memoFetchFriends, setSelectedFriend, friend, selec
       setConfirmationVisible(false);
     }
   };
+  
 
   const showConfirmation = () => {
     setConfirmationVisible(!isConfirmationVisible);
@@ -54,8 +67,9 @@ const FriendItem = ({ socket, memoFetchFriends, setSelectedFriend, friend, selec
     setConfirmationVisible(false);
   };
 
+
   return (
-    <div onClick={() => onFriendClick(friend._id)} className="hover:bg-gray-100 cursor-pointer flex items-center text-slate-600 justify-between p-4 border-b border-gray-200 relative">
+    <div onClick={() => onFriendClick(friend._id)} className="hover:bg-gray-100  cursor-pointer flex items-center text-slate-600 justify-between p-4 border-b border-gray-200 relative">
       <div className="w-12 h-12 flex-shrink-0">
         {friend.image ? (
           <img src={friend.image} alt={friend.name} className="w-full h-full rounded-full" />
@@ -64,17 +78,20 @@ const FriendItem = ({ socket, memoFetchFriends, setSelectedFriend, friend, selec
         )}
       </div>
       <div className="flex-grow capitalize ml-4 text-lg font-semibold select-none">{friend.name.split(" ")[0]}</div>
-      <motion.div
-        className="delete-icon relative cursor-pointer"
-        onClick={(event) => {
-          event.stopPropagation(); // Stop event propagation
-          showConfirmation();
-        }}
-        whileHover={{ scale: 1.3 }}
-        whileTap={{ scale: 0.9 }}
-      >
-        <Trash className="w-6 h-6 text-red-500" />
-      </motion.div>
+      <div className={` ${friend?.isGroup ? 'absolute' : 'hidden'} top-2 left-20 text-[10px] text-emerald-400
+                      font-bold border-emerald-400 rounded-full border px-1`}>GROUP</div>
+ 
+         <motion.div
+         className={`delete-icon relative cursor-pointer`}
+         onClick={(event) => {
+           event.stopPropagation(); 
+           showConfirmation();
+         }}
+         whileHover={{ scale: 1.3 }}
+         whileTap={{ scale: 0.9 }}
+       >
+         <Trash className="w-6 h-6 text-red-500" />
+       </motion.div>
       {isConfirmationVisible && (
         <div ref={confirmationRef} className="absolute -top-12 right-0 mt-8 mr-4 bg-white border border-gray-200 rounded-lg p-4 shadow-md">
           <p className="text-xl font-semibold mb-2 text-center">ARE YOU SURE?</p>

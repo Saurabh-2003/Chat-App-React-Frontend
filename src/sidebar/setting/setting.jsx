@@ -8,7 +8,7 @@ import toast from 'react-hot-toast'
 import axios from "axios";
 
 
-const UserInfoCard = ({ user, onClose }) => {
+const UserInfoCard = ({ user, onClose , setUser}) => {
   const [editedUser, setEditedUser] = useState({ ...user });
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,6 +36,7 @@ const UserInfoCard = ({ user, onClose }) => {
       });
       editedUser.name = res.data.user.name;
       editedUser.image = res.data.user.image;
+      setUser(res.data.user)
       return res.data;
     } catch (error) {
       throw error;
@@ -172,7 +173,7 @@ const UserInfoCard = ({ user, onClose }) => {
 
 
 
-const Setting = ({ user, socket, memoFetchFriends }) => {
+const Setting = ({ user, socket, memoFetchFriends, setUser }) => {
   const [isSettingsMenuVisible, setSettingsMenuVisible] = useState(false);
   const [isUserInfoVisible, setUserInfoVisible] = useState(false);
   const navigate = useNavigate();
@@ -194,7 +195,10 @@ const Setting = ({ user, socket, memoFetchFriends }) => {
 
   return (
     <div className="flex w-full px-4 shadow-md border py-2 rounded-2xl items-center justify-between">
-      <div className="text-slate-700 text-xl capitalize">{(user.name.split(' '))[0]}</div>
+     <div className="flex items-center gap-x-2">
+      <img className=" h-10 w-10 rounded-full" src={user.image} />
+        <div className="text-slate-700 text-xl capitalize">{((user.name.split(' '))[0]).toUpperCase()}</div>
+     </div>
       <div className="flex gap-x-2">
         <RequestSection user={user} socket={socket} memoFetchFriends={memoFetchFriends} />
         <div className=" text-slate-800 relative" onClick={handleSettingsIconClick}>
@@ -218,7 +222,7 @@ const Setting = ({ user, socket, memoFetchFriends }) => {
         </div>
       </div>
       
-      {isUserInfoVisible && <UserInfoCard user={user} onClose={() => setUserInfoVisible(false)} />}
+      {isUserInfoVisible && <UserInfoCard setUser={setUser} user={user} onClose={() => setUserInfoVisible(false)} />}
     </div>
   );
 };

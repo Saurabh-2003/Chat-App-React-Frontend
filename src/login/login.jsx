@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate} from 'react-router-dom';
 import axios from "axios";
 import { motion } from "framer-motion";
 import Loading from "../utils/Loading"
@@ -11,7 +11,6 @@ function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
