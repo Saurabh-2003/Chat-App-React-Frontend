@@ -93,7 +93,7 @@ const FriendItem = ({ socket, memoFetchFriends, setSelectedFriend, friend, selec
          <Trash className="w-6 h-6 text-red-500" />
        </motion.div>
       {isConfirmationVisible && (
-        <div ref={confirmationRef} className="absolute -top-12 right-0 mt-8 mr-4 bg-white border border-gray-200 rounded-lg p-4 shadow-md">
+        <div ref={confirmationRef} className="absolute right-0 mt-8 mr-4 bg-white border border-gray-200 rounded-lg p-4 shadow-md">
           <p className="text-xl font-semibold mb-2 text-center">ARE YOU SURE?</p>
           <div className="flex justify-between">
             <button onClick={deleteFriend} className="delete-accept bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md mr-2">

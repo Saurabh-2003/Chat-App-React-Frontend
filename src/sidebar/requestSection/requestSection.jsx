@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { UserRoundPlus, UserX, UserSquare, LucidePersonStanding, HeartHandshake } from 'lucide-react';
+import { UserRoundPlus, UserX, HeartHandshake } from 'lucide-react';
 import toast from 'react-hot-toast';
-import AddFriendForm from '../AddFriend/AddFriendForm';
 import Loading from './Loading';
 
 
@@ -23,15 +22,16 @@ const Requests = ({ setOpenRequest, setNewRequest, user, socket, memoFetchFriend
         friendId: user._id,
       });
       socket.emit('acceptedRequest', { to: user._id, from: request._id });
+  
+     
+      setRequestsRecieved(prevRequests => prevRequests.filter(req => req._id !== request._id));
+  
       memoFetchFriends();
     } catch (error) {
       toast.error('Error accepting request');
     }
   };
-
-
-
-
+  
   const onDeclineClick = async (request) => {
     try {
       await axios.put(process.env.REACT_APP_BACKEND + '/api/new/declinerequest', {
@@ -39,10 +39,14 @@ const Requests = ({ setOpenRequest, setNewRequest, user, socket, memoFetchFriend
         recieverId: user._id,
       });
       socket.emit('declineRequest', { to: user._id, from: request._id });
+  
+      
+      setRequestsRecieved(prevRequests => prevRequests.filter(req => req._id !== request._id));
     } catch (error) {
       toast.error('Error declining request');
     }
   };
+  
 
   const fetchRequests = async () => {
     try {
@@ -57,7 +61,7 @@ const Requests = ({ setOpenRequest, setNewRequest, user, socket, memoFetchFriend
     }
   };
 
-  const memoizedFetchRequests = useCallback(fetchRequests, [user._id]);
+  const memoizedFetchRequests = useCallback(fetchRequests);
 
   useEffect(() => {
     socket.on('requestAccepted', () => {
@@ -127,7 +131,7 @@ const Requests = ({ setOpenRequest, setNewRequest, user, socket, memoFetchFriend
   );
 };
 
-const RequestSection = ({ user, socket, memoFetchFriends , text }) => {
+const RequestSection = ({ user, socket, memoFetchFriends, text }) => {
   const [openRequest, setOpenRequest] = useState(false);
   const [newRequest, setNewRequest] = useState(false);
 
@@ -137,23 +141,6 @@ const RequestSection = ({ user, socket, memoFetchFriends , text }) => {
       setNewRequest(true); // Mark as seen when opening requests
     }
   };
-
-  useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        const response = await axios.get(process.env.REACT_APP_BACKEND + '/api/new/getrequestsall', {
-          params: { id: user._id },
-        });
-        if (response.data.requestsRecieved.length > 0) {
-          setNewRequest(true);
-        }
-      } catch (error) {
-        console.error('Error fetching requests:', error);
-      }
-    };
-
-    fetchRequests();
-  }, [newRequest, user._id]);
 
   useEffect(() => {
     if (openRequest) {
@@ -179,5 +166,6 @@ const RequestSection = ({ user, socket, memoFetchFriends , text }) => {
     </>
   );
 };
+
 
 export default RequestSection;

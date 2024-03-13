@@ -11,7 +11,7 @@ export function Lamp() {
         initial={{ opacity: 0}}
         animate={{ opacity: 1}}
         transition={{
-          duration:3
+          duration:1.5
         }}
         className="text-6xl text-text-primary font-bold text-center mb-4"
       >
@@ -21,7 +21,7 @@ export function Lamp() {
          initial={{ opacity: 0 }}
          animate={{ opacity: 1}}
          transition={{
-           duration:3
+           duration:1.5
          }}
         className="text-xl text-center text-text-primary/80 mb-8"
       >
