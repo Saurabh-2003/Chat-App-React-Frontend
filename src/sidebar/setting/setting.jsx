@@ -94,7 +94,7 @@ const UserInfoCard = ({ user, onClose , setUser}) => {
             <img
               src={editedUser.image ? editedUser.image : "/placeholder.jpg"}
               alt="Profile"
-              className="w-40 h-40 rounded-full mx-auto cursor-pointer border-4 border-gray-400"
+              className={`w-40 h-40 rounded-full  mx-auto  border-4 border-gray-400 ${isLoading && 'cursor-not-allowed'}`}
             />
           </label>
         )}
@@ -104,7 +104,7 @@ const UserInfoCard = ({ user, onClose , setUser}) => {
             type="file"
             accept="image/*"
             onChange={handleAvatarChange}
-            className="hidden"
+            className="hidden disabled:cursor-progress"
             disabled={isLoading}
           />
         )}
@@ -116,7 +116,7 @@ const UserInfoCard = ({ user, onClose , setUser}) => {
                 name="name"
                 value={editedUser.name}
                 onChange={handleInputChange}
-                className="block mt-10 mb-4 w-full border border-gray-300 text-slate-700 rounded-md p-2"
+                className="block mt-10 mb-4 w-full border disabled:cursor-not-allowed text-slate-700 border-gray-300 rounded-md p-2"
                 disabled={isLoading}
               />
             </>
@@ -141,13 +141,13 @@ const UserInfoCard = ({ user, onClose , setUser}) => {
                 <button
                   onClick={handleUpdate}
                   disabled={isLoading}
-                  className="bg-indigo-500 hover:bg-bg-primary hover:scale-105 transition text-white px-4 py-2 rounded-md mr-2"
+                  className="bg-indigo-500 disabled:bg-black disabled:cursor-wait hover:bg-indigo-600 transition text-white px-4 py-2 rounded-md mr-2"
                 >
                   {isLoading ? "Updating..." : "Update"}
                 </button>
                 <button
                   onClick={() => setIsEditing(false)}
-                  className="bg-gray-200 hover:scale-105 hover:bg-gray-300 transition text-gray-700 px-4 py-2 rounded-md"
+                  className="bg-gray-200 hover:bg-gray-300 transition text-gray-700 px-4 py-2 rounded-md"
                 >
                   Cancel
                 </button>
@@ -155,7 +155,7 @@ const UserInfoCard = ({ user, onClose , setUser}) => {
             ) : (
               <button
                 onClick={() => setIsEditing(true)}
-                className="bg-indigo-500 hover:bg-bg-primary hover:scale-105 transition text-white px-10 py-2 rounded-md mr-2"
+                className="bg-indigo-500 hover:bg-indigo-600 transition text-white px-10 py-2 rounded-md mr-2"
               >
                 Edit
               </button>
@@ -169,14 +169,30 @@ const UserInfoCard = ({ user, onClose , setUser}) => {
 
 
 
-
-
-
-
 const Setting = ({ user, socket, memoFetchFriends, setUser }) => {
   const [isSettingsMenuVisible, setSettingsMenuVisible] = useState(false);
   const [isUserInfoVisible, setUserInfoVisible] = useState(false);
   const navigate = useNavigate();
+  const menuRef = useRef(null);
+  const menuIconRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        menuRef.current &&
+        menuIconRef.current &&
+        !menuRef.current.contains(event.target) &&
+        !menuIconRef.current.contains(event.target)
+      ) {
+        setSettingsMenuVisible(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleSettingsIconClick = () => {
     setSettingsMenuVisible(prevState => !prevState);
@@ -188,40 +204,48 @@ const Setting = ({ user, socket, memoFetchFriends, setUser }) => {
     setSettingsMenuVisible(false);
   };
   
-  const handleLogout = (event) => {
+  const handleLogout = async (event) => {
     event.stopPropagation();
+    await axios.post(
+        `${process.env.REACT_APP_BACKEND}/api/new/logout`,
+        { withCredentials: true } 
+    );
     navigate('/login');
-  };
+};
+
 
   return (
-    <div className="flex w-full px-4 shadow-md border py-2 rounded-2xl items-center justify-between">
-     <div className="flex items-center gap-x-2">
-      <img className=" h-10 w-10 rounded-full" src={user.image} />
-        <div className="text-slate-700 text-xl capitalize">{((user.name.split(' '))[0]).toUpperCase()}</div>
-     </div>
-      <div className="flex gap-x-2">
-        <RequestSection user={user} socket={socket} memoFetchFriends={memoFetchFriends} />
-        <div className=" text-slate-800 relative" onClick={handleSettingsIconClick}>
-          <Settings size={30} className="inline-block cursor-pointer hover:text-bg-primary" />
-                {isSettingsMenuVisible && (
-              <div className="absolute  bg-white shadow-md w-40 max-sm:right-0 z-10 rounded-md overflow-hidden flex flex-col gap-3 ">
-                <div 
-                  className="cursor-pointer py-2 px-2 flex w-full text-blue-500 hover:text-slate-100 hover:bg-blue-500" 
-                  onClick={(event) => handleUserInfoClick(event)}
-                >
-                  <CircleUser className="inline-block mr-1" />User Info
-                </div>
-                <div 
-                  className="text-red-500 px-2 py-2 hover:bg-red-500 hover:text-slate-100 cursor-pointer" 
-                  onClick={(event) => handleLogout(event)}
-                >
-                  <LogOut className="inline-block mr-1" />Logout
-                </div>
-              </div>
-            )}
-        </div>
+    <div className="flex select-none bg-indigo-600 text-white w-full px-4 border-b-2 py-4 items-center justify-between">
+      <div className="flex items-center gap-x-2">
+        <img className="size-10"  alt="dummyImage" src="/icon.png" />
+        <div className="text-xl font-bold capitalize">ChitChat</div>
       </div>
-      
+      <div className="flex gap-x-2 relative">
+        <RequestSection user={user} socket={socket} memoFetchFriends={memoFetchFriends} />
+        <motion.div
+          className=" cursor-pointer"
+          onClick={handleSettingsIconClick}
+          ref={menuIconRef}
+        >
+          <Settings size={30} className="inline-block hover:scale-110" />
+          {isSettingsMenuVisible && (
+            <div ref={menuRef} className="absolute mt-2 border max-sm:right-0 bg-white shadow-md w-48  z-10 rounded-md overflow-hidden flex flex-col">
+              <div 
+                className="cursor-pointer py-4 border-b gap-2 px-2 flex w-full text-indigo-600 hover:text-slate-100 hover:bg-indigo-600" 
+                onClick={(event) => handleUserInfoClick(event)}
+              >
+                <CircleUser className="inline-block mr-1" />User Info
+              </div>
+              <div 
+                className="cursor-pointer py-4 border-b gap-2 px-2 flex w-full text-red-500 hover:text-slate-100 hover:bg-red-500" 
+                onClick={(event) => handleLogout(event)}
+              >
+                <LogOut className="inline-block mr-1" />Logout
+              </div>
+            </div>
+          )}
+        </motion.div>
+      </div>
       {isUserInfoVisible && <UserInfoCard setUser={setUser} user={user} onClose={() => setUserInfoVisible(false)} />}
     </div>
   );

@@ -13,6 +13,31 @@ function MessageContainer({ user, socket, selectedFriend, setSelectedFriend }) {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [friendData, setFriendData] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const emojiPickerRef = useRef(null);
+  const emojiPickerIconRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        emojiPickerRef.current &&
+        emojiPickerIconRef.current &&
+        !emojiPickerRef.current.contains(event.target) &&
+        !emojiPickerIconRef.current.contains(event.target)
+      ) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleEmojiPickerClick = () => {
+    setShowEmojiPicker(prevState => !prevState);
+  };
+
 
   useEffect(() => {
     socket.on('messageReceived', (message) => {
@@ -107,12 +132,12 @@ function MessageContainer({ user, socket, selectedFriend, setSelectedFriend }) {
   return (
     <div className="h-full flex flex-col">
       {selectedFriend !== "" && (
-        <div className="flex rounded-full items-center justify-between py-2 px-4 max-sm:px-6 bg-gray-100 border-b border-gray-300 shadow-lg">
-          <ArrowLeft onClick={() => setSelectedFriend("")} size={30} className="cursor-pointer text-gray-600 hover:text-gray-800" />
+        <div className="flex items-center justify-between py-4 px-4 max-sm:px-6  border-b border-gray-300 shadow-md">
+          <ArrowLeft onClick={() => setSelectedFriend("")} className="cursor-pointer size-10 text-gray-600 hover:text-gray-800" />
           {friendData && (
             <div className="flex items-center space-x-2">
-              <img src={friendData.image != null ? friendData.image : "/placeholder.jpg"} className="h-8 w-8 rounded-full" alt="Friend" />
-              <span className="text-base font-semibold">{friendData.name.split(' ')[0]}</span>
+              <img src={friendData.image != null ? friendData.image : "/placeholder.jpg"} className="size-10 rounded-full" alt="Friend" />
+              <span className="text-lg font-semibold">{friendData.name.split(' ')[0]}</span>
             </div>
           )}
           {friendData && friendData.isGroup && (
@@ -138,7 +163,7 @@ function MessageContainer({ user, socket, selectedFriend, setSelectedFriend }) {
                   <img src={m.fromImage.image || "/placeholder.jpg"} className="h-8 w-8 rounded-full mr-2" alt="From" />
                   <span className="text-sm capitalize text-slate-700">{(m.fromName.name.split(' '))[0]}</span>
                 </div>
-                <div className={`max-w-80 overflow-hidden px-6 rounded-xl ${m.from === user._id ? "bg-gray-200 mr-6 rounded-tl-none text-slate-900 self-end w-fit" : "bg-bg-primary ml-6 rounded-br-none text-white self-start w-fit"}`}>
+                <div className={`max-w-80 overflow-hidden px-6 rounded-xl ${m.from === user._id ? "bg-gray-200 mr-6 rounded-tr-none text-slate-900 self-end w-fit" : "bg-bg-primary ml-6 rounded-tl-none text-white self-start w-fit"}`}>
                   <div className="whitespace-pre-wrap" style={{ wordWrap: 'break-word' }}>{m.message}</div>
                   <div className="text-xs text-right">{formatMessageTime(m.timestamp)}</div>
                 </div>
@@ -147,22 +172,24 @@ function MessageContainer({ user, socket, selectedFriend, setSelectedFriend }) {
           </div>
         ))}
       </div>
-      <form className="flex max-sm:px-0  max-sm:rounded-none items-center bg-gray-100 rounded-full w-full px-2 py-2" onSubmit={handleSend}>
+      <form className="flex border-t-2 items-center   w-full px-2 py-2" onSubmit={handleSend}>
         <div className="mr-4 max-sm:mr-1 px-2 py-2 relative">
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
             className={`absolute bottom-10 mt-8 z-10 ${showEmojiPicker ? '' : 'hidden'}`}
+            ref={emojiPickerRef}
           >
             <EmojiPicker onEmojiClick={handleEmojiClick} />
           </motion.div>
           <motion.div
             whileHover={{ scale: 1.2 }}
             className="cursor-pointer"
-            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            onClick={handleEmojiPickerClick}
+            
           >
-            <SmilePlus className="text-bg-primary max-sm:size-6 size-8" />
+            <SmilePlus ref={emojiPickerIconRef} className="text-bg-primary select-none max-sm:size-6 size-8" />
           </motion.div>
         </div>
         <input

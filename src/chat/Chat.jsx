@@ -76,20 +76,20 @@ function Chat() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
-      className="flex h-screen py-10 max-sm:py-0"
+      className="flex h-screen max-sm:py-0"
     >
-      <section className="flex w-full gap-6 px-10 max-sm:px-0">
-        <SideBar 
-          selectedFriend={selectedFriend} 
-          setSelectedFriend={setSelectedFriend} 
-          user={user} 
-          onFriendClick={handleFriendClick} 
-          socket={socket} 
-          setUser={setUser}
-        />
-        <section className={`flex relative flex-col w-full max-sm:bg-transparent bg-white max-sm:fixed max-sm:overflow-scroll max-sm:h-screen max-sm:bg-white max-sm:w-full rounded-xl ${selectedFriend === "" ? "max-sm:hidden" : "max-sm:block"}`}>
+      <section className="flex w-full ">
+          <SideBar 
+            selectedFriend={selectedFriend} 
+            setSelectedFriend={setSelectedFriend} 
+            user={user} 
+            onFriendClick={handleFriendClick} 
+            socket={socket} 
+            setUser={setUser}
+          />
+        <section className={`flex relative flex-col w-full max-sm:bg-transparent bg-white max-sm:fixed max-sm:overflow-scroll max-sm:h-screen max-sm:bg-white max-sm:w-full ${selectedFriend === "" ? "max-sm:hidden" : "max-sm:block"}`}>
           
-          <div className="flex-grow h-full max-sm:px-0 px-4 py-4">
+          <div className="flex-grow h-full max-sm:px-0 ">
             {selectedFriend && (
               loading ? (
                 <div className="h-full flex flex-col overflow-y-scroll justify-between">

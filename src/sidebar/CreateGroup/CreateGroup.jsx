@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import Modal from 'react-modal';
 import { Plus, X } from 'lucide-react';
-import { motion, useDragControls } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import axios from 'axios'
+import {toast} from 'react-hot-toast';
+
+
 
 const CreateGroup = ({ user, socket }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
   const [participants, setParticipants] = useState([]);
   const [loading, setLoading] = useState(false);
-  const controls = useDragControls()
   const openModal = () => {
     setIsOpen(true);
   };
@@ -38,8 +40,7 @@ const CreateGroup = ({ user, socket }) => {
 
   const handleCreateGroup = async (data) => {
     if (participants.length < 1) return;
-  
-    setLoading(true);
+
     const formData = new FormData();
     formData.append('groupName', data.groupName);
     formData.append('participants', JSON.stringify(participants));
@@ -51,14 +52,62 @@ const CreateGroup = ({ user, socket }) => {
       }
     };
   
+    setLoading(true);
+    const loadingId = toast.loading("Creating a group, Please Wait !!")
+
     try {
+      
       const response = await axios.post(process.env.REACT_APP_BACKEND+'/api/new/create-group', formData, config);
-      console.log(response.data);
+      const { success, validEmails, invalidEmails } = response.data; 
+      if (!success) toast.error("Some Error Occurred");
+      setParticipants([]);
+      reset()
+      
+      toast.success(
+        <div>
+          {validEmails.length > 0 && 
+            <div>
+              <h1 className="text-slate-600">Request Sent Successfully to :</h1>
+              <ul>
+                {validEmails.map((mail, index) => (
+                  <li key={index} className="text-sm text-slate-500">
+                    {index + 1}) {mail}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          }
+          {invalidEmails.length > 0 && 
+            <div className="text-red-500">
+              <h1 >Mail not sent to following emails as they are invalid :</h1>
+              <ul className="text-red-400">
+                {invalidEmails.map((mail, index) => (
+                  <li key={index} className="text-sm ">
+                    {index + 1}) {mail}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          }
+        </div>
+      );
     } catch (error) {
-      console.error('Error creating group:', error);
-    } finally {
+      if (error.response && error.response.data && error.response.data.errors) {
+          const errors = error.response.data.errors;
+          toast.error(
+              <ul className="text-sm">
+                  {errors.map((err, index) => (
+                      <li key={index} className="text-red-500">{index + 1}) {err}</li>
+                  ))}
+              </ul>
+          );
+      } else {
+          toast.error(error.response.data.message);
+          setParticipants([])
+      }
+  } finally {
       setLoading(false);
-      closeModal(); 
+      toast.dismiss(loadingId)
     }
   };
 
@@ -68,7 +117,7 @@ const CreateGroup = ({ user, socket }) => {
       <motion.button
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
-        className='bg-bg-primary/90 hover:bg-bg-primary active:bg-blue-700 h-12 w-12 rounded-full flex items-center justify-center shadow-lg'
+        className='bg-indigo-600 h-10 w-10 rounded-full flex items-center justify-center shadow-lg'
         onClick={openModal}
         title="Create a group"
       >
@@ -91,7 +140,8 @@ const CreateGroup = ({ user, socket }) => {
           <motion.button
             whileHover={{ scale: 1.2 }}
             onClick={closeModal}
-            className='absolute top-2 hover:text-red-500 right-2 focus:outline-none'
+            disabled={loading}
+            className='absolute top-2 disabled:cursor-wait hover:text-red-500 right-2 focus:outline-none'
           >
             <X size={24} />
           </motion.button>
@@ -104,7 +154,7 @@ const CreateGroup = ({ user, socket }) => {
                 name='groupName'
                 disabled={loading}
                 {...register('groupName', { required: 'Group Name is required' })}
-                className='mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none '
+                className='mt-1 p-2 w-full border border-gray-300 disabled:cursor-not-allowed rounded-md focus:outline-none '
               />
               {errors.groupName && <p className='text-red-500 text-sm mt-1'>{errors.groupName.message}</p>}
             </div>
@@ -115,13 +165,15 @@ const CreateGroup = ({ user, socket }) => {
                   type='email'
                   id='participant'
                   name='participant'
-                  className='p-2 h-12 flex-grow border border-gray-300 rounded-l-md focus:outline-none '
+                  disabled={loading}
+                  className='p-2 h-12 flex-grow border disabled:cursor-not-allowed border-gray-300 rounded-l-md focus:outline-none '
                   {...register('participant')}
                 />
                 <button
                   type='button'
+                  disabled={loading}
                   onClick={handleSubmit(handleAddParticipant)}
-                  className='px-4 py-2 bg-indigo-500 h-12 text-white rounded-r-md hover:bg-indigo-600 focus:outline-none'
+                  className='px-4 py-2 disabled:cursor-not-allowed bg-indigo-500 h-12 text-white rounded-r-md hover:bg-indigo-600 focus:outline-none'
                 >
                   Add
                 </button>
@@ -134,8 +186,9 @@ const CreateGroup = ({ user, socket }) => {
                   <li key={index} className='relative flex items-center'>
                     <div className='px-2 rounded-full text-slate-700 bg-gray-100 '>{participant}</div>
                     <button
+                    disabled={loading}
                       onClick={() => handleRemoveParticipant(index)}
-                      className='bg-red-500 w-4 h-4 rounded-full text-white absolute -top-1 -right-1 focus:outline-none'
+                      className='bg-red-500 disabled:cursor-not-allowed w-4 h-4 rounded-full text-white absolute -top-1 -right-1 focus:outline-none'
                     >
                       <X size={16} />
                     </button>
@@ -146,11 +199,17 @@ const CreateGroup = ({ user, socket }) => {
             </div>
             <button
               type="submit"
-              className={`w-full py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 focus:outline-none ${participants.length < 1 ? 'cursor-not-allowed' : ''}`}
-              disabled={participants.length < 1}
+              className={`w-full py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 focus:outline-none ${
+                participants.length < 1 ? 'disabled:cursor-not-allowed' : ''
+              } ${
+                loading ? 'disabled:cursor-progress' : ''
+              }`}
+              disabled={participants.length < 1 || loading}
             >
-              Create Group
+              {loading ? 'Creating Group...' : 'Create Group'}
             </button>
+
+
           </form>
         </motion.div>
       </Modal>

@@ -4,7 +4,6 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import Loading from "../utils/Loading"
 import toast from 'react-hot-toast'
-import ErrorMessage from "../utils/ErrorMessage";
 
 function Login() {
   const navigate = useNavigate();
@@ -16,10 +15,17 @@ function Login() {
     setIsLoading(true);
 
     try {
+      const config = {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json', 
+          }
+        }
+
       const response = await axios.post(process.env.REACT_APP_BACKEND + '/api/new/login', {
         email,
         password,
-      });
+      }, config);
 
       const {user} = response.data;
       toast.success("Successfully Logged In");
@@ -27,7 +33,7 @@ function Login() {
       setIsLoading(false);
     } catch (error) {
       console.log('Login Failed', error);
-      toast.error("Unable to login. Please check your credentials : ", error);
+      toast.error(error.response.data.message);
       setIsLoading(false);
     }
   };
@@ -35,14 +41,14 @@ function Login() {
   if(isLoading)
     return (<Loading />)
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
+    <div className="flex justify-center items-center h-screen w-screen bg-gray-100">
       <motion.div 
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="max-w-md w-full bg-white shadow-lg rounded-lg overflow-hidden"
+        className="max-w-md max-sm:max-w-full flex items-center flex-col justify-center max-sm:p-0 p-8 max-sm:w-full max-sm:rounded-none max-sm:h-full w-full bg-white shadow-lg rounded-lg overflow-hidden"
       >
-        <div className="p-8">
+        
           <h2 className="text-3xl text-slate-700 text-center  font-bold mb-4">Login</h2>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
@@ -82,7 +88,6 @@ function Login() {
           <p className="mt-4 text-sm">
             Don't have an account? <Link to='/signup' className="text-indigo-500 hover:underline">Sign up</Link>
           </p>
-        </div>
       </motion.div>
     </div>
   );

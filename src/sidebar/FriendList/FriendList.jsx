@@ -1,16 +1,12 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import FriendItem from "../FriedItem/FriendItem.jsx";
-import toast from 'react-hot-toast';
 
 const FriendList = ({ memoFetchFriends, selectedFriend, friends, onFriendClick, socket, user, setSelectedFriend }) => {
-  socket.on('deleteFriend', () => {
-    toast.success("Friend deleted successfully");
-    memoFetchFriends();
-  });
+
 
   return (
-    <ul className=" h-full">
+    <ul className="h-full">
       <AnimatePresence>
         {friends.map((friend, index) => (
           <motion.li
@@ -21,8 +17,9 @@ const FriendList = ({ memoFetchFriends, selectedFriend, friends, onFriendClick, 
             transition={{ duration: 0.5 }}
           >
             <FriendItem
-            selectedFriend={selectedFriend}
-            setSelectedFriend={setSelectedFriend}
+              isSelected={friend._id === selectedFriend}
+              selectedFriend={selectedFriend}
+              setSelectedFriend={setSelectedFriend}
               socket={socket} 
               memoFetchFriends={memoFetchFriends} 
               friend={friend} 

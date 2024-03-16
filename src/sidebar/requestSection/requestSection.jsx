@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {  useEffect, useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { UserRoundPlus, UserX, HeartHandshake } from 'lucide-react';
@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import Loading from './Loading';
 
 
-const Requests = ({ setOpenRequest, setNewRequest, user, socket, memoFetchFriends }) => {
+const Requests = ({ setOpenRequest, setNewRequest, user, socket }) => {
   const closeCard = () => {
     setOpenRequest(false);
     setNewRequest(false);
@@ -17,30 +17,27 @@ const Requests = ({ setOpenRequest, setNewRequest, user, socket, memoFetchFriend
 
   const onAcceptClick = async (request) => {
     try {
-      await axios.post(process.env.REACT_APP_BACKEND+'/api/new/addfriend', {
+      const response  = await axios.post(process.env.REACT_APP_BACKEND+'/api/new/addfriend', {
         userId: request._id,
         friendId: user._id,
       });
-      socket.emit('acceptedRequest', { to: user._id, from: request._id });
-  
-     
-      setRequestsRecieved(prevRequests => prevRequests.filter(req => req._id !== request._id));
-  
-      memoFetchFriends();
+      if(response.data.success) toast.success("Friend Request Accepted")
+      socket.emit('acceptedRequest', {
+        userId: request._id,
+        friendId: user._id,});   
+        setRequestsRecieved(prevRequests => prevRequests.filter(req => req._id !== request._id))
     } catch (error) {
-      toast.error('Error accepting request');
+      toast.error(error.response.data.message);
     }
   };
   
   const onDeclineClick = async (request) => {
     try {
-      await axios.put(process.env.REACT_APP_BACKEND + '/api/new/declinerequest', {
+        const reponse = await axios.put(process.env.REACT_APP_BACKEND + '/api/new/declinerequest', {
         senderId: request._id,
         recieverId: user._id,
       });
-      socket.emit('declineRequest', { to: user._id, from: request._id });
-  
-      
+      toast.success(reponse.data.message);
       setRequestsRecieved(prevRequests => prevRequests.filter(req => req._id !== request._id));
     } catch (error) {
       toast.error('Error declining request');
@@ -48,38 +45,30 @@ const Requests = ({ setOpenRequest, setNewRequest, user, socket, memoFetchFriend
   };
   
 
-  const fetchRequests = async () => {
-    try {
-      setLoading(true)
-      const response = await axios.get(process.env.REACT_APP_BACKEND + '/api/new/getrequestsall', {
-        params: { id: user._id },
-      });
-      setRequestsRecieved(response.data.requestsRecieved);
-      setLoading(false)
-    } catch (error) {
-      console.error('Error fetching requests:', error);
-    }
-  };
-
-  const memoizedFetchRequests = useCallback(fetchRequests);
 
   useEffect(() => {
-    socket.on('requestAccepted', () => {
-      memoizedFetchRequests();
-    });
-    socket.on('requestDeclined', () => {
-      memoizedFetchRequests();
-    });
-    return () => {
-      socket.off('requestAccepted');
-      socket.off('requestDeclined');
+    const fetchRequests = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND}/api/new/getrequestsall/${user._id}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true
+        });
+        
+        setRequestsRecieved(response.data.requestsRecieved);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching requests:', error);
+      }
     };
-  }, [memoizedFetchRequests, socket]);
-
-
-  useEffect(() => {
-    memoizedFetchRequests();
-  }, [])
+  
+    fetchRequests();
+  }, []);
+  
+  
   
   return (
     <motion.div
@@ -105,6 +94,7 @@ const Requests = ({ setOpenRequest, setNewRequest, user, socket, memoFetchFriend
                 {requestsRecieved.map((request) => (
                   <div key={request._id} className="request-single flex justify-between items-center py-2">
                     <span>{request.name.toUpperCase()}</span>
+                    {request.isGroup && <span className='text-blue-400 text-[12px] px-2 rounded-xl border border-blue-400'>Group Invite</span>}
                     <div className="icons-here flex">
                       <button
                         onClick={() => onAcceptClick(request)}
@@ -152,13 +142,13 @@ const RequestSection = ({ user, socket, memoFetchFriends, text }) => {
     <>
       <motion.div
         whileTap={{ scale: 0.95 }}
-        className="request-section w-full flex items-center justify-center relative cursor-pointer text-slate-800 transition duration-300 ease-in-out"
+        className="request-section w-full flex items-center justify-center relative cursor-pointer  transition duration-300 ease-in-out"
         onClick={handleRequest}
       >
         {text ? (
           <span className='text-white'>{text}</span>
         ) : (
-          <HeartHandshake size={32} className='bg-transparent hover:scale-110 transition hover:text-bg-primary'/>
+          <HeartHandshake size={32} className='bg-transparent hover:scale-110 transition '/>
         )}
         <div className={`h-4 w-4 ${newRequest ? 'block' : 'hidden'} bg-bg-primary animate-bounce absolute rounded-full -top-1 -right-1 border-2 border-white`}/>
       </motion.div>

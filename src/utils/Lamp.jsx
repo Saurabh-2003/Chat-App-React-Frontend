@@ -13,7 +13,7 @@ export function Lamp() {
         transition={{
           duration:1.5
         }}
-        className="text-6xl text-text-primary font-bold text-center mb-4"
+        className="text-6xl max-sm:text-4xl text-text-primary font-bold text-center mb-4"
       >
         Connect With Your Friends & Family in Real Time
       </motion.h1>
@@ -49,7 +49,7 @@ export const LampContainer = ({
   return (
     <div
       className={cn(
-        "relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-black w-full rounded-md z-0",
+        "relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-black w-full  z-0",
         className
       )}
     >
@@ -113,7 +113,7 @@ export const LampContainer = ({
         <div className="absolute inset-auto z-40 h-44 w-full -translate-y-[12.5rem] bg-black "></div>
       </div>
 
-      <div className="relative z-50 flex -translate-y-64 flex-col items-center ">
+      <div className="relative z-50 flex -translate-y-64 max-md:-translate-y-40 flex-col items-center ">
         {children}
       </div>
     </div>

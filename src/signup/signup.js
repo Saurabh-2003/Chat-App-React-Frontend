@@ -16,26 +16,39 @@ function Signup() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    // Set isLoading to true when the user submits the form
     setIsLoading(true);
 
     try {
-      // Make request to backend for signup
-      const response = await axios.post(process.env.REACT_APP_BACKEND+'/api/new/signup', {
-        name,
-        email,
-        password,
-      });
-
-      // Handle Successful Signup :
+      const config = {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json', 
+        }
+      }
+      const response = await axios.post(process.env.REACT_APP_BACKEND + '/api/new/signup', {
+          name,
+          email,
+          password,
+      }, config);
       setIsLoading(false);
-      toast.success("Register Successful",response.message)
+      toast.success("Register Successful", response.message);
       navigate('/login');
-    } catch (error) {
-      
-      toast.error('signup failed : ', error)
+  } catch (error) {
       setIsLoading(false);
-    }
+      if (error.response && error.response.data && error.response.data.errors) {
+          const errors = error.response.data.errors;
+          toast.error(
+              <ul className="text-sm">
+                  {errors.map((err, index) => (
+                      <li key={index} className="text-red-500">{index + 1}) {err}</li>
+                  ))}
+              </ul>
+          );
+      } else {
+          toast.error(error.response.data.message);
+      }
+  }
+  
   };
 
   if(isLoading)
@@ -47,9 +60,8 @@ function Signup() {
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="max-w-md w-full bg-white shadow-lg rounded-lg overflow-hidden"
+        className="max-w-md max-sm:max-w-full flex items-center flex-col justify-center max-sm:p-0 p-8 max-sm:w-full max-sm:rounded-none max-sm:h-full w-full bg-white shadow-lg rounded-lg overflow-hidden"
       >
-        <div className="p-8">
           <h2 className="text-3xl text-slate-700 text-center font-bold mb-4">Sign Up</h2>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
@@ -98,7 +110,6 @@ function Signup() {
           <p className="mt-4 text-sm text-center">
             Already have an account? <Link to='/login' className="text-indigo-500 hover:underline">Log in</Link>
           </p>
-        </div>
       </motion.div>
     </div>
   );
