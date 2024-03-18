@@ -4,10 +4,11 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import Modal from "react-modal";
+import { useAppContext } from "../../AppContext";
 
-const FriendItem = ({ socket, memoFetchFriends, setSelectedFriend, friend, selectedFriend, onFriendClick, user, isSelected }) => {
+const FriendItem = ({  friend,  isSelected }) => {
   const [isConfirmationVisible, setConfirmationVisible] = useState(false);
-
+  const { user, setSelectedFriend, selectedFriend, socket} = useAppContext();
   const deleteFriend = async (event) => {
     event.stopPropagation();
     console.log(friend.admin, user._id);
@@ -55,7 +56,7 @@ const FriendItem = ({ socket, memoFetchFriends, setSelectedFriend, friend, selec
 
   return (
     <div 
-      onClick={() => onFriendClick(friend._id)} 
+      onClick={() => setSelectedFriend(friend._id)} 
       className={`hover:bg-gray-100 cursor-pointer flex items-center text-slate-600 justify-between p-4 border-b border-gray-200 relative ${isSelected ? 'bg-gray-200' : ''}`}
     >
       <div className="w-12 h-12 flex-shrink-0">

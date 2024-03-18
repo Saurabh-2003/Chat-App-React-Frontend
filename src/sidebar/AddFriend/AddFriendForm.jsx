@@ -4,8 +4,11 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { UsersRound, X } from "lucide-react";
 import { motion } from "framer-motion";
+import {useAppContext} from "../../AppContext";
 
-const AddFriendForm = ({ user, socket }) => {
+
+const AddFriendForm = () => {
+  const {user, socket} = useAppContext();
   const [isOpen, setIsOpen] = useState(false);
   const [addFriend, setAddFriend] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -32,11 +35,13 @@ const AddFriendForm = ({ user, socket }) => {
       toast.success(response.data.message);
       toast.dismiss(toastId);
       socket.emit("sendRequest", { user: user._id, email: addFriend });
-      setIsLoading(false);
+      
       setAddFriend("");
     } catch (error) {
       toast.error(error.response.data.message);
       toast.dismiss(toastId);
+    } finally{
+      setIsLoading(false);
     }
   };
 

@@ -5,10 +5,12 @@ import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import axios from 'axios'
 import {toast} from 'react-hot-toast';
+import { useAppContext } from '../../AppContext';
 
 
 
-const CreateGroup = ({ user, socket }) => {
+const CreateGroup = () => {
+  const {user} = useAppContext
   const [isOpen, setIsOpen] = useState(false);
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
   const [participants, setParticipants] = useState([]);

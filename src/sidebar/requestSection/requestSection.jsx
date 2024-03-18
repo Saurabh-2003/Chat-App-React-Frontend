@@ -4,14 +4,15 @@ import { motion } from 'framer-motion';
 import { UserRoundPlus, UserX, HeartHandshake } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Loading from './Loading';
+import { useAppContext } from '../../AppContext';
 
 
-const Requests = ({ setOpenRequest, setNewRequest, user, socket }) => {
+const Requests = ({ setOpenRequest, setNewRequest }) => {
   const closeCard = () => {
     setOpenRequest(false);
     setNewRequest(false);
   };
-
+  const {user, socket} = useAppContext()
   const [requestsRecieved, setRequestsRecieved] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -121,7 +122,7 @@ const Requests = ({ setOpenRequest, setNewRequest, user, socket }) => {
   );
 };
 
-const RequestSection = ({ user, socket, memoFetchFriends, text }) => {
+const RequestSection = ({  text }) => {
   const [openRequest, setOpenRequest] = useState(false);
   const [newRequest, setNewRequest] = useState(false);
 
@@ -152,7 +153,7 @@ const RequestSection = ({ user, socket, memoFetchFriends, text }) => {
         )}
         <div className={`h-4 w-4 ${newRequest ? 'block' : 'hidden'} bg-bg-primary animate-bounce absolute rounded-full -top-1 -right-1 border-2 border-white`}/>
       </motion.div>
-      {openRequest && <Requests setNewRequest={setNewRequest} user={user} setOpenRequest={setOpenRequest} socket={socket} memoFetchFriends={memoFetchFriends} />}
+      {openRequest && <Requests setNewRequest={setNewRequest}  setOpenRequest={setOpenRequest}   />}
     </>
   );
 };

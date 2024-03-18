@@ -3,30 +3,15 @@ import { useParams } from "react-router-dom";
 import SideBar from "../sidebar/sidebar";
 import MessageContainer from "../sidebar/messageContainer/messageContainer.jsx";
 import axios from "axios";
-import { io } from "socket.io-client";
 import ErrorMessage from "../utils/ErrorMessage.jsx";
 import { motion } from "framer-motion";
-import Loading from './Loading.jsx';
 import UserLoading from "./UserLoading.jsx";
-
-const socket = io.connect(process.env.REACT_APP_BACKEND);
+import { useAppContext } from "../AppContext.jsx";
 
 function Chat() {
   const [useLoading, setUserLoading] = useState(true);
-  const [user, setUser] = useState(null);
-  const [selectedFriend, setSelectedFriend] = useState("");
-  const [loading, setLoading] = useState(false);
+  const {  user, setUser, selectedFriend, socket} = useAppContext();
   const { id } = useParams();
-
-  const handleFriendClick = async (friendId) => {
-    try {
-      setLoading(true);
-      setSelectedFriend(friendId);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching messages:", error);
-    }
-  };
 
   useEffect(() => {
     const getUserDetails = async () => {
@@ -79,27 +64,14 @@ function Chat() {
       className="flex h-screen max-sm:py-0"
     >
       <section className="flex w-full ">
-          <SideBar 
-            selectedFriend={selectedFriend} 
-            setSelectedFriend={setSelectedFriend} 
-            user={user} 
-            onFriendClick={handleFriendClick} 
-            socket={socket} 
-            setUser={setUser}
-          />
+          <SideBar  />
         <section className={`flex relative flex-col w-full max-sm:bg-transparent bg-white max-sm:fixed max-sm:overflow-scroll max-sm:h-screen max-sm:bg-white max-sm:w-full ${selectedFriend === "" ? "max-sm:hidden" : "max-sm:block"}`}>
           
           <div className="flex-grow h-full max-sm:px-0 ">
             {selectedFriend && (
-              loading ? (
-                <div className="h-full flex flex-col overflow-y-scroll justify-between">
-                  <Loading />
-                </div>
-              ) : (
                 <div className="h-full flex flex-col justify-between">
-                    <MessageContainer setSelectedFriend={setSelectedFriend} selectedFriend={selectedFriend} socket={socket} user={user} />
+                    <MessageContainer />
                 </div>
-              )
             )}
             {!selectedFriend && (
               <div className="text-center mt-4 max-sm:hidden">Start a Conversation</div>

@@ -6,9 +6,10 @@ import { Mail } from 'lucide-react';
 import RequestSection from "../requestSection/requestSection";
 import toast from 'react-hot-toast'
 import axios from "axios";
+import { useAppContext } from "../../AppContext";
 
-
-const UserInfoCard = ({ user, onClose , setUser}) => {
+const UserInfoCard = ({ onClose }) => {
+  const {  user, setUser} = useAppContext();
   const [editedUser, setEditedUser] = useState({ ...user });
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -169,7 +170,7 @@ const UserInfoCard = ({ user, onClose , setUser}) => {
 
 
 
-const Setting = ({ user, socket, memoFetchFriends, setUser }) => {
+const Setting = () => {
   const [isSettingsMenuVisible, setSettingsMenuVisible] = useState(false);
   const [isUserInfoVisible, setUserInfoVisible] = useState(false);
   const navigate = useNavigate();
@@ -221,7 +222,7 @@ const Setting = ({ user, socket, memoFetchFriends, setUser }) => {
         <div className="text-xl font-bold capitalize">ChitChat</div>
       </div>
       <div className="flex gap-x-2 relative">
-        <RequestSection user={user} socket={socket} memoFetchFriends={memoFetchFriends} />
+        <RequestSection />
         <motion.div
           className=" cursor-pointer"
           onClick={handleSettingsIconClick}
@@ -246,7 +247,7 @@ const Setting = ({ user, socket, memoFetchFriends, setUser }) => {
           )}
         </motion.div>
       </div>
-      {isUserInfoVisible && <UserInfoCard setUser={setUser} user={user} onClose={() => setUserInfoVisible(false)} />}
+      {isUserInfoVisible && <UserInfoCard onClose={() => setUserInfoVisible(false)} />}
     </div>
   );
 };
