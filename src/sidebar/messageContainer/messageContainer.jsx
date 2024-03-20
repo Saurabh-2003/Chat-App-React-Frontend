@@ -161,29 +161,38 @@ function MessageContainer() {
 
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col bg-gray-900">
       {selectedFriend !== "" && (
-        <div className="flex items-center justify-between py-4 px-4 max-sm:px-6  border-b border-gray-300 shadow-md">
-          <ArrowLeft onClick={() => setSelectedFriend("")} className="cursor-pointer size-10 text-gray-600 hover:text-gray-800" />
+        <div className="flex bg-gray-800 items-center justify-between py-4 px-4 max-sm:px-6  shadow-md">
+          <ArrowLeft onClick={() => setSelectedFriend("")} className="cursor-pointer size-10 text-gray-400 hover:text-gray-500" />
           {friendData && (
             <div className="flex items-center space-x-2">
               <img src={friendData.image != null ? friendData.image : "/placeholder.jpg"} className="size-10 rounded-full" alt="Friend" />
-              <span className="text-lg font-semibold">{friendData.name.split(' ')[0]}</span>
+              <span className="text-lg text-slate-400 font-semibold">{friendData.name.split(' ')[0]}</span>
             </div>
           )}
           {friendData && friendData.isGroup && (
-            <button onClick={openModal} className="text-gray-600 hover:text-gray-800">
-              <Settings />
+            <button onClick={openModal} className="text-gray-400 hover:text-gray-500">
+              <Settings size={30} />
             </button>
           )}
         </div>
       )}
-      <div className="h-full py-2 max-sm:px-6 relative max-sm:py-0 w-full px-10 overflow-y-auto" ref={messagesRef}>
-        <button onClick={() => setPage(prev => prev +1)} className="w-full text-center bg-indigo-500 text-white mb-4 text-sm"> 
-        {isGettingMessages ? "Loading" : "Show Older Messages"}</button>
+      <div 
+        style={{
+          background: `linear-gradient(rgba(0, 0, 0, 0.8), rgba(0,0,0, 0.8)), url('https://camo.githubusercontent.com/cba518ead87b032dc6f1cbfc7fade27604449201ac1baf34d889f77f093f01ac/68747470733a2f2f7765622e77686174736170702e636f6d2f696d672f62672d636861742d74696c652d6461726b5f61346265353132653731393562366237333364393131306234303866303735642e706e67')`,
+          
+          backgroundRepeat: 'repeat-x', 
+        }} 
+        className="h-full py-2 max-sm:px-6 relative max-sm:py-0 w-full px-10 overflow-y-auto" 
+        ref={messagesRef}
+      >
+
+        <button onClick={() => setPage(prev => prev +1)} className="w-full text-center  text-slate-300 hover:underline mb-4 text-sm"> 
+        {isGettingMessages ? "Loading......" : "Show Older Messages"}</button>
         {Object.entries(groupedMessages).map(([formattedDate, messagesForDate]) => (
           <div key={formattedDate}>
-            <div className="text-center text-gray-500 text-sm mb-3 ">{formattedDate}</div>
+            <div className="text-center text-slate-400 bg-gray-900/90 rounded-md mx-auto py-2 w-28 text-sm mb-3 ">{formattedDate}</div>
             {messagesForDate.map((m, index) => (
               <motion.div
                 className={`flex flex-col w-full mb-2`}
@@ -194,9 +203,9 @@ function MessageContainer() {
               >
                 <div className={`flex gap-2 items-center ${m.from === user._id ? "self-end flex-row-reverse" : "self-start"}`}>
                   <img src={m.fromImage.image || "/placeholder.jpg"} className="h-8 w-8 rounded-full mr-2" alt="From" />
-                  <span className="text-sm capitalize text-slate-700">{(m.fromName.name.split(' '))[0]}</span>
+                  <span className="text-sm capitalize text-slate-200">{(m.fromName.name.split(' '))[0]}</span>
                 </div>
-                <div className={`max-w-80 overflow-hidden px-6 rounded-xl ${m.from === user._id ? "bg-gray-200 mr-6 rounded-tr-none text-slate-900 self-end w-fit" : "bg-bg-primary ml-6 rounded-tl-none text-white self-start w-fit"}`}>
+                <div className={`max-w-80 overflow-hidden px-6 rounded-xl text-slate-200 ${m.from === user._id ? "bg-[#36454F] mr-10 rounded-tr-none self-end w-fit" : "bg-emerald-700 ml-10 rounded-tl-none  self-start w-fit"}`}>
                   <div className="whitespace-pre-wrap" style={{ wordWrap: 'break-word' }}>{m.message}</div>
                   <div className="text-xs text-right">{formatMessageTime(m.timestamp)}</div>
                 </div>
@@ -205,7 +214,7 @@ function MessageContainer() {
           </div>
         ))}
       </div>
-      <form className="flex relative border-t-2 items-center   w-full px-2 py-2" onSubmit={handleSend}>
+      <form className="flex relative bg-gray-800 items-center   w-full px-2 py-4" onSubmit={handleSend}>
         <div className="">
           <motion.div
             disabled={isSendingMessage}
@@ -219,11 +228,11 @@ function MessageContainer() {
           </motion.div>
           <motion.div
             whileHover={{ scale: 1.1 }}
-            className="cursor-pointer absolute left-4 top-4"
+            className="cursor-pointer absolute left-4 top-6"
             onClick={handleEmojiPickerClick}
             
           >
-            <SmilePlus ref={emojiPickerIconRef} className="text-bg-primary  select-none  size-8" />
+            <SmilePlus ref={emojiPickerIconRef} className="text-gray-400 select-none  size-8" />
           </motion.div>
         </div>
         <input
@@ -234,18 +243,18 @@ function MessageContainer() {
           value={sendMessage}
           onChange={(e) => setSendMessage(e.target.value)}
           disabled={isSendingMessage}
-          className="flex-grow border flex-shrink disabled:cursor-not-allowed border-gray-300 rounded-full px-14 py-3 focus:outline-none"
+          className="flex-grow bg-gray-700 text-white flex-shrink disabled:cursor-not-allowed  rounded-full px-14 py-3 focus:outline-none"
         />
         <button
           disabled={isSendingMessage}
           type="submit"
-          className={`absolute right-4 bg-bg-primary max-sm:size-8 text-white flex items-center justify-center px-2 rounded-full py-2 hover:scale-110 transition ${isSendingMessage ? 'cursor-not-allowed opacity-50' : ''}`}
+          className={`absolute right-4 bg-emerald-600 max-sm:size-8 text-gray-200  flex items-center justify-center px-2 rounded-full py-2 hover:scale-110 transition ${isSendingMessage ? 'cursor-not-allowed opacity-50' : ''}`}
         >
           <SendHorizontal />
         </button>
 
       </form>
-      <Modal ariaHideApp={false}  isOpen={showModal} onRequestClose={closeModal}>
+      <Modal className={` grid place-items-center`} ariaHideApp={false}  isOpen={showModal} onRequestClose={closeModal}>
         <GroupSettingsModal  onRequestClose={closeModal} user={user} selectedFriend={selectedFriend}
           isOpen={showModal}/>
       </Modal>

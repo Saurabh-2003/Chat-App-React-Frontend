@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Settings, User, CircleUser, LogOut } from "lucide-react";
+import { Settings, User, CircleUser, LogOut, UsersRound, Plus, X } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { motion } from "framer-motion";
 import { Mail } from 'lucide-react';
@@ -7,6 +7,8 @@ import RequestSection from "../requestSection/requestSection";
 import toast from 'react-hot-toast'
 import axios from "axios";
 import { useAppContext } from "../../AppContext";
+import AddFriendForm from "../AddFriend/AddFriendForm";
+import CreateGroup from "../CreateGroup/CreateGroup";
 
 const UserInfoCard = ({ onClose }) => {
   const {  user, setUser} = useAppContext();
@@ -81,14 +83,14 @@ const UserInfoCard = ({ onClose }) => {
       initial={{ opacity: 0, scale: 0.05 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
-      className="fixed top-0 left-0 w-full h-full max-sm:w-screen flex justify-center items-center z-50 bg-white backdrop-blur-sm bg-opacity-50"
+      className="fixed top-0 left-0 w-full h-full max-sm:w-screen flex justify-center items-center z-50 bg-black/70 backdrop-blur-sm"
     >
-      <div className="bg-white max-sm:h-full max-sm:rounded-none max-sm:w-full h-[500px] w-[500px] rounded-lg p-8 shadow-lg">
+      <div className="bg-gray-900 max-sm:h-full max-sm:rounded-none max-sm:w-full h-[500px] w-[500px] rounded-lg p-8 shadow-lg">
         <span
-          className="absolute top-4 hover:bg-red-500 px-4 rounded-lg hover:text-white py-1 hover right-2 text-gray-700 cursor-pointer"
+          className="absolute top-4  hover:scale-110 px-4 rounded-lg hover:text-white py-1 hover right-2 text-gray-200 cursor-pointer"
           onClick={onClose}
         >
-          Close
+          <X/>
         </span>
         {isEditing && (
           <label htmlFor="avatar" className="block mb-4 w-full">
@@ -117,7 +119,7 @@ const UserInfoCard = ({ onClose }) => {
                 name="name"
                 value={editedUser.name}
                 onChange={handleInputChange}
-                className="block mt-10 mb-4 w-full border disabled:cursor-not-allowed text-slate-700 border-gray-300 rounded-md p-2"
+                className="block mt-10 mb-4 w-full focus:outline-emerald-600 disabled:cursor-not-allowed text-slate-200 bg-gray-700 outline-none rounded-md p-2"
                 disabled={isLoading}
               />
             </>
@@ -128,12 +130,16 @@ const UserInfoCard = ({ onClose }) => {
                 alt="Profile"
                 className="w-40 h-40 rounded-full mx-auto"
               />
-              <p className="text-slate-700">
-                <User size={40} className="inline-block mr-1 text-indigo-500" /> {editedUser.name}
+             <div className="w-full  space-y-4 mt-8"> 
+             <p className="text-slate-300 flex gap-x-16 py-2 border-b border-b-slate-600">
+                <span>Name</span>
+                <span> {editedUser.name}</span>
               </p>
-              <p className="text-slate-700">
-                <Mail size={40} className="inline-block mr-1 text-indigo-500" /> {editedUser.email}
+              <p className="text-slate-300 flex gap-x-16 py-2 border-b border-b-slate-600">
+                <span>Email</span> 
+                <span>{editedUser.email}</span>
               </p>
+             </div>
             </div>
           )}
           <div className="flex justify-center">
@@ -142,13 +148,13 @@ const UserInfoCard = ({ onClose }) => {
                 <button
                   onClick={handleUpdate}
                   disabled={isLoading}
-                  className="bg-indigo-500 disabled:bg-black disabled:cursor-wait hover:bg-indigo-600 transition text-white px-4 py-2 rounded-md mr-2"
+                  className="bg-emerald-600 disabled:bg-black disabled:cursor-wait hover:bg-emerald-700 border border-emerald-500 transition text-white px-4 py-2 rounded-md mr-2"
                 >
                   {isLoading ? "Updating..." : "Update"}
                 </button>
                 <button
                   onClick={() => setIsEditing(false)}
-                  className="bg-gray-200 hover:bg-gray-300 transition text-gray-700 px-4 py-2 rounded-md"
+                  className="bg-gray-600 hover:bg-gray-500 transition text-gray-200 px-4 py-2 rounded-md"
                 >
                   Cancel
                 </button>
@@ -156,7 +162,7 @@ const UserInfoCard = ({ onClose }) => {
             ) : (
               <button
                 onClick={() => setIsEditing(true)}
-                className="bg-indigo-500 hover:bg-indigo-600 transition text-white px-10 py-2 rounded-md mr-2"
+                className="bg-emerald-600 hover:bg-emerald-700 transition border border-emerald-500 text-white px-10 py-2 rounded-md mr-2"
               >
                 Edit
               </button>
@@ -176,6 +182,9 @@ const Setting = () => {
   const navigate = useNavigate();
   const menuRef = useRef(null);
   const menuIconRef = useRef(null);
+  const { user } = useAppContext();
+  const [isAddFriendOpen, setIsAddFriendOpen] = useState(false); // State for add friend modal
+  const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false); // State for create group modal
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -189,37 +198,61 @@ const Setting = () => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
   const handleSettingsIconClick = () => {
-    setSettingsMenuVisible(prevState => !prevState);
+    setSettingsMenuVisible((prevState) => !prevState);
+    closeModals(); // Close all modals when settings menu opens
   };
 
   const handleUserInfoClick = (event) => {
     event.stopPropagation();
     setUserInfoVisible(true);
     setSettingsMenuVisible(false);
+    closeModals(); // Close all modals when user info is clicked
   };
-  
+
   const handleLogout = async (event) => {
     event.stopPropagation();
-    await axios.post(
-        `${process.env.REACT_APP_BACKEND}/api/new/logout`,
-        { withCredentials: true } 
-    );
-    navigate('/login');
-};
+    await axios.post(`${process.env.REACT_APP_BACKEND}/api/new/logout`, {
+      withCredentials: true,
+    });
+    navigate("/login");
+  };
 
+  const openAddFriendForm = (e) => {
+    e.stopPropagation();
+    setSettingsMenuVisible(false);
+    setIsAddFriendOpen(true); // Open add friend modal
+  };
+
+  const openCreateGroupForm = (e) => {
+    e.stopPropagation();
+    setSettingsMenuVisible(false);
+    setIsCreateGroupOpen(true); // Open create group modal
+  };
+
+  const closeModals = () => {
+    setIsAddFriendOpen(false);
+    setIsCreateGroupOpen(false);
+  };
 
   return (
-    <div className="flex select-none bg-indigo-600 text-white w-full px-4 border-b-2 py-4 items-center justify-between">
-      <div className="flex items-center gap-x-2">
-        <img className="size-10"  alt="dummyImage" src="/icon.png" />
-        <div className="text-xl font-bold capitalize">ChitChat</div>
+    <div className="flex select-none bg-gray-800  text-slate-400 w-full px-4  py-4 items-center justify-between">
+      <div
+        className="cursor-pointer"
+        onClick={(event) => handleUserInfoClick(event)}
+      >
+        <img
+          src={user.image ? user.image : "/placeholder.jpg"}
+          alt="Profile"
+          className={` size-10 rounded-full `}
+          title="Profile"
+        />
       </div>
       <div className="flex gap-x-2 relative">
         <RequestSection />
@@ -230,26 +263,43 @@ const Setting = () => {
         >
           <Settings size={30} className="inline-block hover:scale-110" />
           {isSettingsMenuVisible && (
-            <div ref={menuRef} className="absolute mt-2 border max-sm:right-0 bg-white shadow-md w-48  z-10 rounded-md overflow-hidden flex flex-col">
-              <div 
-                className="cursor-pointer py-4 border-b gap-2 px-2 flex w-full text-indigo-600 hover:text-slate-100 hover:bg-indigo-600" 
-                onClick={(event) => handleUserInfoClick(event)}
+            <div
+              ref={menuRef}
+              className="absolute shadow-black border border-slate-700 bg-gray-800 mt-2  max-sm:right-0  shadow-md w-max z-10 rounded-md overflow-hidden flex flex-col"
+            >
+              <div
+                className="flex items-center py-4 gap-2  px-2 hover:bg-gray-900"
+                onClick={(e) => openAddFriendForm(e)}
               >
-                <CircleUser className="inline-block mr-1" />User Info
+                <UsersRound /> Add a Friend
               </div>
-              <div 
-                className="cursor-pointer py-4 border-b gap-2 px-2 flex w-full text-red-500 hover:text-slate-100 hover:bg-red-500" 
+              <div
+                className="flex items-center gap-2 py-4 px-2 hover:bg-gray-900"
+                onClick={(e) => openCreateGroupForm(e)}
+              >
+                <Plus /> New Group
+              </div>
+              <div
+                className="cursor-pointer py-4 gap-2 px-2 flex w-full  hover:bg-gray-900"
                 onClick={(event) => handleLogout(event)}
               >
-                <LogOut className="inline-block mr-1" />Logout
+                <LogOut className="inline-block mr-1" />
+                Logout
               </div>
             </div>
           )}
         </motion.div>
       </div>
-      {isUserInfoVisible && <UserInfoCard onClose={() => setUserInfoVisible(false)} />}
+      {/* Render AddFriendForm modal */}
+      <AddFriendForm isOpen={isAddFriendOpen} setIsOpen={setIsAddFriendOpen} />
+      {/* Render CreateGroup modal */}
+      <CreateGroup isOpen={isCreateGroupOpen} setIsOpen={setIsCreateGroupOpen} />
+      {isUserInfoVisible && (
+        <UserInfoCard onClose={() => setUserInfoVisible(false)} />
+      )}
     </div>
   );
 };
 
 export default Setting;
+

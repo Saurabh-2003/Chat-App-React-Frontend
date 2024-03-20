@@ -126,7 +126,7 @@ const handleAddParticipant = (data) => {
 
 
   return (
-    <div className={`fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-50 z-50 ${isOpen ? 'block' : 'hidden'}`}>
+    <div className={`fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black/80 bg-opacity-50 z-50 ${isOpen ? 'block' : 'hidden'}`}>
       <div className="bg-white rounded-lg max-w-md p-6 shadow-xl min-w-2/4 min-h-96 max-sm:h-full max-sm:rounded-none max-sm:w-full max-h-4/5 overflow-hidden">
         <h2 className="text-center text-2xl mb-6 font-bold">Group Settings</h2>
         {groupInfo && (

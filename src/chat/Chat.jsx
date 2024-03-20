@@ -65,7 +65,7 @@ function Chat() {
     >
       <section className="flex w-full ">
           <SideBar  />
-        <section className={`flex relative flex-col w-full max-sm:bg-transparent bg-white max-sm:fixed max-sm:overflow-scroll max-sm:h-screen max-sm:bg-white max-sm:w-full ${selectedFriend === "" ? "max-sm:hidden" : "max-sm:block"}`}>
+        <section className={`flex relative flex-col w-full max-sm:bg-transparent  max-sm:fixed max-sm:overflow-scroll max-sm:h-screen  max-sm:w-full ${selectedFriend === "" ? "max-sm:hidden" : "max-sm:block"}`}>
           
           <div className="flex-grow h-full max-sm:px-0 ">
             {selectedFriend && (
@@ -74,7 +74,7 @@ function Chat() {
                 </div>
             )}
             {!selectedFriend && (
-              <div className="text-center mt-4 max-sm:hidden">Start a Conversation</div>
+              <div className="grid place-items-center text-slate-300 h-full w-full bg-gray-900  max-sm:hidden">Start a Conversation</div>
             )}
           </div>
         </section>
