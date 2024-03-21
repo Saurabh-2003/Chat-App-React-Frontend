@@ -59,7 +59,7 @@ const AddFriendForm = ({ isOpen, setIsOpen }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
           onSubmit={handleSubmit}
-          className="relative flex pt-12 rounded-xl shadow-lg px-10 bg-gray-900 h-48 w-96 max-sm:w-full  flex-col space-y-2"
+          className="relative flex max-sm:h-full max-sm:justify-center pt-12 rounded-xl shadow-lg px-10 bg-gray-900 h-48 w-96 max-sm:w-full  flex-col space-y-2"
         >
           <h2 className="w-full text-stone-200 text-lg font-bold text-center">Add Friend</h2>
           <input

@@ -99,7 +99,7 @@ function Login() {
           className="mt-2 text-sm text-indigo-500 hover:underline focus:outline-none"
           disabled={isLoading}
         >
-          Login with test account
+          Use test credentials
         </button>
       </motion.div>
     </div>

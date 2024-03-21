@@ -124,7 +124,7 @@ const CreateGroup = ({isOpen, setIsOpen}) => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -50 }}
           transition={{ duration: 0.3 }}
-          className='relative bg-gray-900 shadow-lg w-96 px-10 py-6 rounded-xl'
+          className='relative max-sm:h-full max-sm:w-full max-sm:grid max-sm:place-content-center bg-gray-900 shadow-lg w-96 px-10 py-6 rounded-xl'
         >
           <h2 className='text-xl text-stone-200 w-full text-center font-bold mb-4'>Create Group</h2>
           <motion.button

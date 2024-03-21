@@ -11,7 +11,7 @@
     "clsx": "^2.1.0",
     "emoji-picker-react": "^4.5.16",
     "framer-motion": "^11.0.6",
-    "lucide-react": "^0.294.0",
+    "lucide-react": "^0.359.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.50.1",

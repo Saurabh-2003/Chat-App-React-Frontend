@@ -127,19 +127,19 @@ const handleAddParticipant = (data) => {
 
   return (
     <div className={`fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black/80 bg-opacity-50 z-50 ${isOpen ? 'block' : 'hidden'}`}>
-      <div className="bg-white rounded-lg max-w-md p-6 shadow-xl min-w-2/4 min-h-96 max-sm:h-full max-sm:rounded-none max-sm:w-full max-h-4/5 overflow-hidden">
-        <h2 className="text-center text-2xl mb-6 font-bold">Group Settings</h2>
+      <div className="bg-gray-900 max-sm:max-w-full rounded-lg max-w-md p-6 shadow-xl min-w-2/4 min-h-96 max-sm:h-full max-sm:rounded-none max-sm:w-full max-h-4/5 overflow-hidden">
+        <h2 className="text-center text-stone-200 text-2xl mb-6 font-bold">Group Settings</h2>
         {groupInfo && (
           <div className="h-64 overflow-y-auto">
-            <h3 className="mb-4 text-lg font-semibold">Group Members</h3>
+            <h3 className="mb-4 text-lg text-stone-300 font-semibold">Group Members</h3>
             <ul className="space-y-4">
               {groupInfo.friends.map((member) => (
-                <li key={member._id} className="flex justify-between items-center p-4 bg-gray-100 rounded-md">
+                <li key={member._id} className="flex justify-between items-center p-4 bg-gray-800 rounded-md">
                   <div className="flex items-center gap-4">
                     <img className="h-12 w-12 rounded-full" src={member.image || "/placeholder.jpg"} alt="Member" />
                     <div>
-                      <div className="text-lg font-semibold">{member.name}</div>
-                      <div className="text-gray-500">{member.email}</div>
+                      <div className="text-lg text-slate-300 font-semibold">{member.name}</div>
+                      <div className="text-gray-400">{member.email}</div>
                     </div>
                   </div>
                   <div>
@@ -155,30 +155,30 @@ const handleAddParticipant = (data) => {
           </div>
         )}
         {groupInfo && groupInfo.admin.toString() === user._id.toString() && (
-          <div className="pt-2 mt-2 border-t ">
-            <h3 className="mb-4 text-lg font-semibold">Add Member</h3>
+          <div className="pt-2 mt-2 border-t border-t-gray-500 ">
+            <h3 className="mb-4 text-stone-300 text-lg font-semibold">Add Member</h3>
             <form onSubmit={handleSubmit(addNewMembers)}>
               <div className='mb-4'>
-                <label htmlFor='participant' className='block text-sm font-medium text-gray-700'>Participants' Email</label>
+                <label htmlFor='participant' className='block text-sm font-medium text-gray-300'>Participants' Email</label>
                 <div className='flex items-center mt-1 '>
                   <input
                     type='email'
                     id='participant'
                     name='participant'
-                    className='p-2 h-12 flex-grow border border-gray-300 rounded-l-md focus:outline-none '
+                    className='p-2 bg-gray-600 focus:border-emerald-500 text-slate-100 h-12 flex-grow border disabled:cursor-not-allowed border-gray-400 rounded-l-md focus:outline-none '
                     {...register('participant')}
                   />
                   <button
                     type='button'
                     onClick={handleSubmit(handleAddParticipant)}
-                    className='px-4 py-2 bg-indigo-500 h-12 text-white rounded-r-md hover:bg-indigo-600 focus:outline-none'
+                    className='px-4 py-2 disabled:cursor-not-allowed bg-emerald-600 h-12 text-white rounded-r-md hover:bg-emerald-700 border border-gray-400 focus:outline-none'
                   >
                     Add
                   </button>
                 </div>
               </div>
               <div className='mb-4'>
-                <p className='block text-sm font-medium text-gray-700 mb-1'>Participants</p>
+                <p className='block text-sm font-medium text-gray-300 mb-1'>Participants</p>
                 <ul className='flex flex-wrap w-full gap-x-3 gap-y-3'>
                   {participants.map((participant, index) => (
                     <li key={index} className='relative flex items-center'>
@@ -196,7 +196,9 @@ const handleAddParticipant = (data) => {
               </div>
               <button
                 type="submit"
-                className={`w-full py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 focus:outline-none ${participants.length < 1 ? 'cursor-not-allowed' : ''}`}
+                className={`w-full py-2 bg-emerald-600 text-white rounded-md border border-emerald-500 hover:bg-emerald-700 focus:outline-none ${
+                  participants.length < 1 ? 'disabled:cursor-not-allowed' : ''
+                }`}
                 disabled={participants.length < 1}
               >
                 Add Participants
@@ -204,8 +206,8 @@ const handleAddParticipant = (data) => {
             </form>
           </div>
         )}
-        <button onClick={onRequestClose} className="absolute top-4 right-4 p-2 hover:bg-gray-200 rounded-full">
-          <XCircle className="h-6 w-6" />
+        <button onClick={onRequestClose} className="absolute top-4 right-4 p-2  text-slate-200 hover:scale-125 hover:text-slate-100 rounded-full">
+          <X className="h-6 w-6" />
         </button>
       </div>
     </div>
