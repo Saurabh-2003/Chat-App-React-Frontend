@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 import axios from "axios";
 import { motion } from "framer-motion";
@@ -10,6 +10,33 @@ function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const checkTokenLogin = async () => {
+      try {
+        const config = {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json', 
+          }
+        }
+  
+        const response = await axios.post(process.env.REACT_APP_BACKEND + '/api/new/login',{
+          "dummy":"dummy"
+        } ,config);
+  
+        const { user } = response.data;
+        toast.success("Successfully Logged In");
+        navigate(`/chat/${user._id}`, { state: { user } });
+      } catch (error) {
+        console.log('Token not present or invalid');
+      }
+    }
+    
+    checkTokenLogin();
+  }, []);
+
+
   
   const handleLogin = async (e) => {
     e.preventDefault();

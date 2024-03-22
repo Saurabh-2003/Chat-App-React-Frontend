@@ -218,7 +218,7 @@ const Setting = () => {
 
   const handleLogout = async (event) => {
     event.stopPropagation();
-    await axios.post(`${process.env.REACT_APP_BACKEND}/api/new/logout`, {
+    await axios.post(`${process.env.REACT_APP_BACKEND}/api/new/logout`,{"dummy":"dummy"}, {
       withCredentials: true,
     });
     navigate("/login");
